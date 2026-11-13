@@ -264,6 +264,19 @@ body.sheet-open .top{filter:blur(4px)}
 .g.fresh{animation:blurIn .9s var(--ease) both}
 .gate.on .box{animation:blurIn .8s var(--ease) both}
 
+/* ---------- QUIÉN LO HA APUNTADO ---------- */
+i.by{font-style:normal;color:var(--ink2)}
+.byf{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:11px 16px;font-size:12.5px;font-weight:600;color:var(--ink2);outline:none;max-width:100%;cursor:pointer}
+.byf:focus{border-color:var(--line2)}
+.byf option{background:#111;color:var(--ink)}
+.byrow .byn{color:var(--ink);font-weight:700}
+.byrow .byd{font-style:normal;color:var(--bad)}
+.audit{display:grid;gap:6px;margin-top:16px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.audit div{display:flex;align-items:baseline;gap:8px;font-size:13px;flex-wrap:wrap}
+.audit span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);min-width:150px}
+.audit b{font-weight:700}
+.audit i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--mute);margin-left:auto}
+
 /* ---------- PERMISOS / EQUIPO ---------- */
 [hidden]{display:none!important}
 body.no-edit [data-open-add]{display:none!important}
@@ -406,6 +419,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
           <button data-s="new" class="on">Recientes</button>
           <button data-s="az">A–Z</button>
         </div>
+        <select class="byf" id="byF" aria-label="Apuntados por"><option value="">Apuntados por: todos</option></select>
       </div>
       <div class="glist" id="list"></div>
     </section>
@@ -442,6 +456,10 @@ body.no-door .tick,body.no-door .d .go{display:none}
       <div class="cols">
         <div class="panel"><div class="k">Por método de pago</div><div id="mMethods" style="margin-top:10px"></div></div>
         <div class="panel"><div class="k">Pendientes de cobro</div><div id="mDue" style="margin-top:10px"></div></div>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <div class="k">Quién ha apuntado a quién</div>
+        <div id="mBy" style="margin-top:10px"></div>
       </div>
       <div class="panel" style="margin-top:12px">
         <div class="k">Enlace y copias de seguridad</div>
@@ -494,6 +512,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
 <div class="sheet" id="sheet" role="dialog" aria-modal="true">
   <div class="grab"></div>
   <div class="sh-head"><div class="av sh-av" id="shAv" hidden></div><h3 id="shTitle">Apuntar<em>a alguien</em></h3></div>
+  <div class="audit" id="shAudit" hidden></div>
   <form id="shForm" autocomplete="off">
     <div class="field"><label>Nombre y apellido</label><input id="fName" required placeholder="Ej: Pablo García" enterkeyhint="next"></div>
     <div class="field"><label>Instagram o teléfono</label><input id="fContact" placeholder="@usuario" enterkeyhint="done"></div>
@@ -558,7 +577,12 @@ const FIREBASE_CONFIG = {
   const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const eur = n => { const r = Math.round(n * 100) / 100; return r.toLocaleString('es-ES', { minimumFractionDigits: r % 1 ? 2 : 0, maximumFractionDigits: 2 }) + '€'; };
   const initials = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-  const owes = g => g.method === 'Pendiente' || (g.method !== 'Invitación' && (+g.paid || 0) < PRICE);
+  // Quién hace cada cosa: el dispositivo actual con su nombre registrado
+  const me = () => ({ uid: (store && store.uid) || 'local', name: lsGet('wf3_name') || 'Este ordenador' });
+  const byName = g => g.addedBy && g.addedBy.name ? g.addedBy.name : 'Sin registrar';
+  const byKey = g => g.addedBy && g.addedBy.uid ? g.addedBy.uid : '_none';
+  const fmtWhen = t => t ? new Date(t).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+  const owes = g =>g.method === 'Pendiente' || (g.method !== 'Invitación' && (+g.paid || 0) < PRICE);
   const list = () => Object.values(guests).sort((a, b) => a.createdAt - b.createdAt);
   const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
@@ -763,7 +787,19 @@ const FIREBASE_CONFIG = {
     let old = null;
     try { old = JSON.parse(lsGet('wf3_local_v2') || 'null'); } catch {}
     if (!old || !Object.keys(old).length) { try { const o = JSON.parse(lsGet('waxfest3_guestlist_v1') || 'null'); if (o && o.guests && o.guests.length) { old = {}; o.guests.forEach(g => old[g.id] = g); } } catch {} }
-    if (old && Object.keys(old).length && confirm(`En este dispositivo hay ${Object.keys(old).length} personas guardadas de antes. ¿Subirlas a la lista compartida?`)) store.replace(old);
+    if (old && Object.keys(old).length && confirm(`En este dispositivo hay ${Object.keys(old).length} personas guardadas de antes. ¿Subirlas a la lista compartida?`)) store.replace(stampImport(old));
+  }
+  // Al importar: los que ya existen conservan quién los apuntó; los nuevos quedan a nombre de quien importa
+  function stampImport(map) {
+    const out = {};
+    Object.entries(map).forEach(([id, g]) => {
+      const cur = guests[id], x = { ...g, id };
+      if (cur) { if (cur.addedBy) x.addedBy = cur.addedBy; else delete x.addedBy; }
+      else x.addedBy = me();
+      ['editedBy', 'enteredBy'].forEach(k => { if (x[k] == null) delete x[k]; else if (!cur || !cur[k] || cur[k].uid !== x[k].uid) { if (k === 'enteredBy') x[k] = me(); else delete x[k]; } });
+      out[id] = x;
+    });
+    return out;
   }
 
   function getKey() {
@@ -828,11 +864,17 @@ const FIREBASE_CONFIG = {
     if (filter === 'in') rows = rows.filter(g => g.entered);
     if (filter === 'out') rows = rows.filter(g => !g.entered);
     if (filter === 'due') rows = rows.filter(owes);
+    // filtro por quién apuntó
+    const byF = $('#byF'), byCur = byF.value, who = {};
+    G.forEach(g => { const k = byKey(g); who[k] = who[k] || { name: byName(g), n: 0 }; who[k].n++; });
+    byF.innerHTML = '<option value="">Apuntados por: todos</option>' + Object.entries(who).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => `<option value="${esc(k)}">${esc(v.name)} (${v.n})</option>`).join('');
+    byF.value = who[byCur] ? byCur : '';
+    if (byF.value) rows = rows.filter(g => byKey(g) === byF.value);
     sort === 'az' ? rows.sort((a, b) => a.name.localeCompare(b.name, 'es')) : rows.reverse();
     $('#list').innerHTML = rows.length ? rows.map(g => `
       <div class="g ${g.entered ? 'in' : ''} ${g.id === fresh ? 'fresh' : ''}" data-id="${g.id}">
         <div class="av">${esc(initials(g.name))}<span class="num">${num[g.id]}</span></div>
-        <div class="nm" data-act="edit"><b>${esc(g.name)}</b><span>${[g.contact, g.method, g.note].filter(Boolean).map(esc).join(' · ')}</span></div>
+        <div class="nm" data-act="edit"><b>${esc(g.name)}</b><span>${[`<i class="by">por ${esc(byName(g))}</i>`].concat([g.contact, g.method, g.note].filter(Boolean).map(esc)).join(' · ')}</span></div>
         ${amtPill(g)}
         <div style="display:flex;gap:6px;align-items:center"><button class="more" data-act="edit" aria-label="Editar">${IC.dots}</button><button class="tick" data-act="toggle" aria-label="Marcar entrada">${IC.check}</button></div>
       </div>`).join('')
@@ -846,7 +888,7 @@ const FIREBASE_CONFIG = {
     drows = drows.slice(0, 60);
     $('#doorList').innerHTML = drows.length ? drows.map(g => `
       <div class="d ${g.entered ? 'in' : ''} ${owes(g) ? 'due' : ''}" data-id="${g.id}">
-        <div class="nm"><b>${esc(g.name)}</b><span>${amtPill(g)}${g.contact ? esc(g.contact) : ''}</span></div>
+        <div class="nm"><b>${esc(g.name)}</b><span>${amtPill(g)}${g.contact ? esc(g.contact) + ' · ' : ''}<i class="by">por ${esc(byName(g))}</i></span></div>
         <button class="go" data-act="toggle">${g.entered ? '✓ Dentro' : 'Entrar'}</button>
       </div>`).join('')
       : `<div class="empty"><b>${dq ? 'No está en la lista' : N ? 'Han entrado todos' : 'Lista vacía'}</b><span>${dq ? 'Revisa cómo se escribe o búscalo por su @' : ''}</span></div>`;
@@ -858,7 +900,9 @@ const FIREBASE_CONFIG = {
     $('#seven').innerHTML = Array.from({ length: SPLIT }, (_, i) => `<div><span>Nº ${i + 1}</span><b>${eur(each)}</b></div>`).join('');
     const byM = {}; G.forEach(g => { byM[g.method] = byM[g.method] || { n: 0, s: 0 }; byM[g.method].n++; byM[g.method].s += +g.paid || 0; });
     $('#mMethods').innerHTML = Object.keys(byM).length ? METHODS.filter(m => byM[m]).map(m => `<div class="rowkv"><span>${m} · ${byM[m].n}</span><b>${eur(byM[m].s)}</b></div>`).join('') : '<p class="note">Sin pagos todavía.</p>';
-    $('#mDue').innerHTML = due.length ? due.map(g => `<div class="rowkv due"><span>${esc(g.name)}</span><b>${eur(PRICE - (+g.paid || 0))}</b></div>`).join('') : '<p class="note">Nadie debe nada.</p>';
+    const byP = {}; G.forEach(g => { const k = byKey(g); byP[k] = byP[k] || { name: byName(g), n: 0, s: 0, due: 0 }; byP[k].n++; byP[k].s += +g.paid || 0; if (owes(g)) byP[k].due++; });
+    $('#mBy').innerHTML = Object.keys(byP).length ? Object.entries(byP).sort((a, b) => b[1].s - a[1].s).map(([k, p]) => `<div class="rowkv byrow" data-by="${esc(k)}"><span><b class="byn">${esc(p.name)}</b> · ${p.n} persona${p.n > 1 ? 's' : ''}${p.due ? ` · <em class="byd">${p.due} sin cobrar</em>` : ''}</span><b>${eur(p.s)}</b></div>`).join('') : '<p class="note">Nadie apuntado todavía.</p>';
+    $('#mDue').innerHTML =due.length ? due.map(g => `<div class="rowkv due"><span>${esc(g.name)}</span><b>${eur(PRICE - (+g.paid || 0))}</b></div>`).join('') : '<p class="note">Nadie debe nada.</p>';
   }
 
   /* ---------------- pestañas ---------------- */
@@ -874,7 +918,7 @@ const FIREBASE_CONFIG = {
     const go = () => window.scrollTo({ top: Math.min(window.scrollY, document.querySelector('.kpis').offsetTop - 70), behavior: 'smooth' });
     t ? t.finished.finally(go) : go();
   });
-  $('#q').oninput = render; $('#dq').oninput = render;
+  $('#q').oninput = render; $('#dq').oninput = render; $('#byF').onchange = render;
   $('#filter').onclick = e => { const b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; $$('#filter button').forEach(x => x.classList.toggle('on', x === b)); render(); };
   $('#sort').onclick = e => { const b = e.target.closest('button'); if (!b) return; sort = b.dataset.s; $$('#sort button').forEach(x => x.classList.toggle('on', x === b)); render(); };
 
@@ -882,7 +926,7 @@ const FIREBASE_CONFIG = {
   function toggle(id) {
     if (!can('door')) return toast('No tienes permiso de puerta');
     const g = { ...guests[id] }; if (!g.id) return;
-    g.entered = !g.entered; g.enteredAt = g.entered ? Date.now() : null;
+    g.entered = !g.entered; g.enteredAt = g.entered ? Date.now() : null; g.enteredBy = g.entered ? me() : null;
     store.put(g);
     if (navigator.vibrate) navigator.vibrate(g.entered ? 30 : 10);
     toast(g.entered ? `${g.name} · dentro` : `${g.name} · fuera`);
@@ -924,6 +968,13 @@ const FIREBASE_CONFIG = {
     setMethod(editing ? editing.method : 'Bizum');
     if (editing) $('#fPaid').value = editing.paid, syncAmt();
     $('#shAv').hidden = !editing; $('#shAv').textContent = editing ? initials(editing.name) : '';
+    // historial: quién apuntó, editó y marcó la entrada
+    $('#shAudit').hidden = !editing;
+    if (editing) $('#shAudit').innerHTML = [
+      `<div><span>Apuntado por</span><b>${esc(byName(editing))}</b><i>${fmtWhen(editing.createdAt)}</i></div>`,
+      editing.editedBy ? `<div><span>Último cambio</span><b>${esc(editing.editedBy.name)}</b><i>${fmtWhen(editing.editedAt)}</i></div>` : '',
+      editing.entered ? `<div><span>Entrada marcada por</span><b>${esc(editing.enteredBy ? editing.enteredBy.name : '—')}</b><i>${fmtWhen(editing.enteredAt)}</i></div>` : ''
+    ].join('');
     const sheet = $('#sheet'), scrim = $('#scrim');
     const show = () => { scrim.classList.add('on'); sheet.classList.add('on'); document.body.classList.add('sheet-open'); };
     if (VT && src) {
@@ -964,13 +1015,13 @@ const FIREBASE_CONFIG = {
     if (!name) return;
     const paid = (method === 'Invitación' || method === 'Pendiente') ? 0 : Math.max(0, +$('#fPaid').value || 0);
     if (editing) {
-      store.put({ ...editing, name, contact: $('#fContact').value.trim(), note: $('#fNote').value.trim(), method, paid });
+      store.put({ ...editing, name, contact: $('#fContact').value.trim(), note: $('#fNote').value.trim(), method, paid, editedBy: me(), editedAt: Date.now() });
       closeSheet(); toast('Cambios guardados'); return;
     }
     const dup = list().find(g => norm(g.name) === norm(name));
     if (dup && !confirm(`“${dup.name}” ya está en la lista. ¿Añadir otra vez?`)) return;
     if (list().length >= CAP && !confirm('Ya hay 300 personas (aforo máximo). ¿Añadir igualmente?')) return;
-    const g = { id: uid(), name, contact: $('#fContact').value.trim(), note: $('#fNote').value.trim(), method, paid, entered: false, enteredAt: null, createdAt: Date.now() };
+    const g = { id: uid(), name, contact: $('#fContact').value.trim(), note: $('#fNote').value.trim(), method, paid, entered: false, enteredAt: null, createdAt: Date.now(), addedBy: me() };
     fresh = g.id; setTimeout(() => { if (fresh === g.id) fresh = null; }, 1200);
     store.put(g);
     closeSheet(); toast(`${name} apuntado · nº ${list().length}`);
@@ -990,8 +1041,8 @@ const FIREBASE_CONFIG = {
   $('#bJson').onclick = () => { download(`waxfest3_lista_${stamp()}.json`, JSON.stringify({ guests: list(), savedAt: Date.now() }, null, 2), 'application/json'); toast('Copia descargada'); };
   $('#bCsv').onclick = () => {
     const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const rows = [['Nº', 'Nombre', 'Contacto', 'Pagado', 'Método', 'Nota', 'Dentro'].join(';')]
-      .concat(list().map((g, i) => [i + 1, q(g.name), q(g.contact), String(g.paid).replace('.', ','), q(g.method), q(g.note), g.entered ? 'SÍ' : 'NO'].join(';')));
+    const rows = [['Nº', 'Nombre', 'Contacto', 'Pagado', 'Método', 'Nota', 'Apuntado por', 'Fecha alta', 'Dentro', 'Entrada marcada por'].join(';')]
+      .concat(list().map((g, i) => [i + 1, q(g.name), q(g.contact), String(g.paid).replace('.', ','), q(g.method), q(g.note), q(byName(g)), q(fmtWhen(g.createdAt)), g.entered ? 'SÍ' : 'NO', q(g.enteredBy ? g.enteredBy.name : '')].join(';')));
     download(`waxfest3_lista_${stamp()}.csv`, '﻿' + rows.join('\r\n'), 'text/csv;charset=utf-8');
   };
   $('#bPrint').onclick = () => { setTab('list'); setTimeout(() => window.print(), 100); };
@@ -1003,8 +1054,8 @@ const FIREBASE_CONFIG = {
       const arr = Array.isArray(data.guests) ? data.guests : Object.values(data.guests || {});
       if (!arr.length) throw 0;
       if (!confirm(`La copia tiene ${arr.length} personas y reemplazará la lista actual (${list().length}). ¿Seguir?`)) return;
-      const prev = { ...guests }, map = {}; arr.forEach(g => map[g.id || uid()] = { ...g, id: g.id || uid() });
-      store.replace(map); toast('Copia cargada', () => store.replace(prev));
+      const prev = { ...guests }, map = {}; arr.forEach(g => { const id = g.id || uid(); map[id] = { ...g, id }; });
+      store.replace(stampImport(map)); toast('Copia cargada', () => store.replace(prev));
     } catch { alert('Ese archivo no es una copia válida de la lista.'); }
   };
 
