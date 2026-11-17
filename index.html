@@ -273,6 +273,8 @@ body.nomoney .kpis{grid-template-columns:repeat(3,1fr)}
 .pwgrid .gin{text-align:left;font-family:var(--mono)}
 @media (max-width:820px){.pwgrid{grid-template-columns:1fr}}
 
+.g.ro .more{visibility:hidden}
+
 /* ---------- CONTADOR ---------- */
 .counter{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;border:1px solid var(--line);border-radius:30px;padding:34px 28px;background:radial-gradient(ellipse at center,rgba(255,255,255,.06),transparent 70%),var(--card)}
 .cside .k{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
@@ -550,7 +552,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
         <div class="legend">
           <div><b>Sin contraseña</b><span>Solo ve la lista de nombres y quién ha entrado</span></div>
           <div><b>Puerta</b><span>Marca entradas y usa el contador (se lo das tú aquí)</span></div>
-          <div><b>Editor</b><span>Con la de equipo: apunta, edita y borra gente</span></div>
+          <div><b>Editor</b><span>Con la de equipo: ve todo y apunta gente; solo cambia o quita a los suyos</span></div>
           <div><b>Admin</b><span>Con la de admin: todo, dinero y contraseñas</span></div>
         </div>
       </div>
@@ -701,7 +703,10 @@ const FIREBASE_CONFIG = {
     view: perm.role !== 'blocked',
     door: level() >= 2, edit: level() >= 3, admin: level() >= 4
   })[a];
-  const viewKey = () => 'wf3_view_' + (store && store.key);
+  // Editor: solo toca a la gente que ha apuntado él. Marcar entradas y contador: Puerta o Admin.
+  const canEditG = g => perm.local || can('admin') || (can('edit') && !!g && !!g.addedBy && !!store && g.addedBy.uid === store.uid);
+  const canEnter = () => perm.local || can('admin') || perm.role === 'door';
+  const viewKey = () =>'wf3_view_' + (store && store.key);
   function deviceLabel() {
     const u = navigator.userAgent;
     const os = /iPhone/.test(u) ? 'iPhone'
@@ -764,7 +769,7 @@ const FIREBASE_CONFIG = {
           gRef = db.ref(E + '/guests'); let first = true;
           gRef.on('value', snap => {
             guests = snap.val() || {}; lsSet(CACHE, JSON.stringify(guests)); cb();
-            if (can('edit')) st.syncPublic();
+            if (can('admin')) st.syncPublic();
             if (first && can('edit')) offerMigration(); first = false;
           }, () => { gRef = null; });
         } else if (!full && can('view') && !pRef) {
@@ -834,7 +839,7 @@ const FIREBASE_CONFIG = {
   function applyPerm() {
     const full = can('door');
     document.body.classList.toggle('no-edit', !can('edit'));
-    document.body.classList.toggle('no-door', !can('door'));
+    document.body.classList.toggle('no-door', !canEnter());
     document.body.classList.toggle('nomoney', !full);
     const team = !perm.local && can('admin');
     $$('[data-tab="team"]').forEach(b => b.hidden = !team);
@@ -1021,7 +1026,7 @@ const FIREBASE_CONFIG = {
     if (byF.value) rows = rows.filter(g => byKey(g) === byF.value);
     sort === 'az' ? rows.sort((a, b) => a.name.localeCompare(b.name, 'es')) : rows.reverse();
     $('#list').innerHTML = rows.length ? rows.map(g => `
-      <div class="g ${g.entered ? 'in' : ''} ${g.id === fresh ? 'fresh' : ''}" data-id="${g.id}">
+      <div class="g ${g.entered ? 'in' : ''} ${g.id === fresh ? 'fresh' : ''} ${canEditG(g) ? '' : 'ro'}" data-id="${g.id}">
         <div class="av">${esc(initials(g.name))}<span class="num">${num[g.id]}</span></div>
         <div class="nm" data-act="edit"><b>${esc(g.name)}</b><span>${[`<i class="by">por ${esc(byName(g))}</i>`].concat([g.contact, mChip(mLabel(g.method)), g.note].filter(Boolean).map(esc)).join(' · ')}</span></div>
         ${amtPill(g)}
@@ -1073,7 +1078,7 @@ const FIREBASE_CONFIG = {
 
   /* ---------------- acciones de fila ---------------- */
   function toggle(id) {
-    if (!can('door')) return toast('No tienes permiso de puerta');
+    if (!canEnter()) return toast('Marcar entradas es cosa de Puerta o Admin');
     const g = { ...guests[id] }; if (!g.id) return;
     g.entered = !g.entered; g.enteredAt = g.entered ? Date.now() : null; g.enteredBy = g.entered ? me() : null;
     store.put(g);
@@ -1106,6 +1111,7 @@ const FIREBASE_CONFIG = {
 
   function openSheet(id, src) {
     if (!can('edit')) return toast('Solo los editores pueden apuntar o cambiar gente');
+    if (id && !canEditG(guests[id])) return toast('Solo puedes cambiar a la gente que has apuntado tú');
     editing = id ? guests[id] : null;
     $('#shTitle').innerHTML = editing ? 'Editar<em>invitado</em>' : 'Apuntar<em>a alguien</em>';
     $('#shOk').textContent = editing ? 'Guardar' : 'Añadir';
@@ -1219,19 +1225,19 @@ const FIREBASE_CONFIG = {
     if (lastIn !== null && n !== lastIn) ['#ctIn', '#cLeft'].forEach(s => { const el = $(s); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); });
     lastIn = n;
     // pueden pulsar Puerta, Editor y Admin; "Ver" solo lo mira en directo
-    const canCount = can('door');
+    const canCount = canEnter();
     $('#cPlus').disabled = !canCount; $('#cMinus').disabled = !canCount || !n;
     $('#cHint').hidden = canCount;
     $$('[data-admin]').forEach(b => b.hidden = !can('admin'));
   }
   $('#cPlus').onclick = () => {
-    if (!can('door')) return toast('Necesitas permiso de Puerta para usar el contador');
+    if (!canEnter()) return toast('El contador es cosa de Puerta o Admin');
     const total = counter.total || CAP;
     if ((counter.in || 0) >= total && !confirm('Ya está completo. ¿Sumar igualmente?')) return;
     store.counterAdd(1); if (navigator.vibrate) navigator.vibrate(25);
     const b = $('#cPlus'); b.classList.remove('hit'); void b.offsetWidth; b.classList.add('hit');
   };
-  $('#cMinus').onclick = () => { if (can('door') && counter.in > 0) { store.counterAdd(-1); toast('Restada una persona'); } };
+  $('#cMinus').onclick = () => { if (canEnter() && counter.in > 0) { store.counterAdd(-1); toast('Restada una persona'); } };
   $('#cTotalBtn').onclick = () => {
     const v = parseInt(prompt('¿Cuántas entradas hay en total?', counter.total || CAP), 10);
     if (v > 0) store.counterSet('total', v);
