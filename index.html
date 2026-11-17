@@ -264,6 +264,34 @@ body.sheet-open .top{filter:blur(4px)}
 .g.fresh{animation:blurIn .9s var(--ease) both}
 .gate.on .box{animation:blurIn .8s var(--ease) both}
 
+/* ---------- CONTADOR ---------- */
+.counter{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;border:1px solid var(--line);border-radius:30px;padding:34px 28px;background:radial-gradient(ellipse at center,rgba(255,255,255,.06),transparent 70%),var(--card)}
+.cside .k{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
+.cside.right{text-align:right}
+.cnum{font-family:var(--display);font-size:clamp(88px,15vw,190px);line-height:.85;margin-top:10px;font-variant-numeric:tabular-nums}
+.cnum.zero{color:var(--bad)}
+.cnum.bump{animation:bump .38s var(--ease)}
+@keyframes bump{40%{transform:scale(1.12)}}
+.cbtn{position:relative;width:clamp(170px,26vw,250px);aspect-ratio:1;border-radius:50%;background:var(--ink);color:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 12px rgba(255,255,255,.05),0 0 0 24px rgba(255,255,255,.025),0 30px 80px rgba(0,0,0,.7);transition:transform .12s var(--ease);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.cbtn span{font-family:var(--display);font-size:clamp(64px,9vw,96px);line-height:.9}
+.cbtn small{font-family:var(--mono);font-size:12px;letter-spacing:.35em;text-transform:uppercase;margin-top:6px}
+.cbtn:active{transform:scale(.92)}
+.cbtn:disabled{opacity:.25;cursor:not-allowed}
+.cbtn.hit::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid var(--ok);animation:ring .6s var(--ease) forwards}
+@keyframes ring{from{transform:scale(1);opacity:1}to{transform:scale(1.45);opacity:0}}
+.cbar{height:10px;border-radius:10px;background:var(--line);margin-top:18px;overflow:hidden}
+.cbar i{display:block;height:100%;width:0;background:var(--ok);border-radius:10px;transition:width .45s var(--ease)}
+.ctotal{text-align:center;color:var(--dim);font-size:13px;letter-spacing:.06em;margin-top:12px}
+.cfoot{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.cfoot .btn:disabled{opacity:.35}
+.gseg{justify-content:center;margin:0 auto 14px;width:max-content}
+.gerr{color:var(--bad);font-size:14px;min-height:18px;margin:0}
+@media (max-width:820px){
+  .counter{grid-template-columns:1fr 1fr;padding:24px 18px;gap:18px 10px}
+  .cbtn{grid-column:1/-1;grid-row:2;justify-self:center;width:min(68vw,260px)}
+  .cnum{font-size:clamp(72px,24vw,120px)}
+}
+
 /* ---------- QUIÉN LO HA APUNTADO ---------- */
 i.by{font-style:normal;color:var(--ink2)}
 .byf{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:11px 16px;font-size:12.5px;font-weight:600;color:var(--ink2);outline:none;max-width:100%;cursor:pointer}
@@ -367,6 +395,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
     <nav class="tabs-top" id="tabsTop">
       <button data-tab="list" class="on">Lista</button>
       <button data-tab="door">Puerta</button>
+      <button data-tab="count">Contador</button>
       <button data-tab="money">Dinero</button>
       <button data-tab="team" hidden>Equipo<span class="badge" hidden></span></button>
     </nav>
@@ -434,6 +463,24 @@ body.no-door .tick,body.no-door .d .go{display:none}
       <div class="dl" id="doorList"></div>
     </section>
 
+    <!-- CONTADOR -->
+    <section class="view" id="v-count">
+      <div class="sec-h"><h2>Contador<em>de puerta</em></h2></div>
+      <div class="counter">
+        <div class="cside"><div class="k">Dentro</div><div class="cnum chrome" id="ctIn">0</div></div>
+        <button class="cbtn" id="cPlus" aria-label="Sumar una persona dentro"><span>+1</span><small>Entra</small></button>
+        <div class="cside right"><div class="k">Quedan</div><div class="cnum" id="cLeft">300</div></div>
+      </div>
+      <div class="cbar"><i id="cBar"></i></div>
+      <p class="ctotal mono" id="cTotalTxt">de 300 entradas</p>
+      <p class="note" id="cHint" style="text-align:center" hidden>Lo ves en directo. Solo los admin pueden sumar o restar.</p>
+      <div class="cfoot">
+        <button class="btn ghost" id="cMinus">−1 Deshacer</button>
+        <button class="btn ghost" id="cTotalBtn" data-admin>Cambiar total</button>
+        <button class="btn ghost danger" id="cReset" data-admin>Poner a 0</button>
+      </div>
+    </section>
+
     <!-- DINERO -->
     <section class="view" id="v-money">
       <div class="sec-h"><h2>Reparto<em>de la noche</em></h2></div>
@@ -469,8 +516,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
           <button class="btn ghost" id="bJson">Descargar copia</button>
           <button class="btn ghost" id="bImport">Cargar copia</button>
           <button class="btn ghost" id="bCsv">Exportar Excel</button>
-          <button class="btn ghost" id="bPrint">Imprimir lista</button>
-        </div>
+          <button class="btn ghost" id="bPrint">Imprimir lista</button>        </div>
         <input type="file" id="fileIn" accept=".json,application/json" hidden>
       </div>
     </section>
@@ -503,6 +549,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
 <nav class="bnav" id="bnav">
   <button data-tab="list" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Lista</button>
   <button data-tab="door"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 17l5-5-5-5M15 12H3"/></svg>Puerta</button>
+  <button data-tab="count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Contador</button>
   <button class="plus" data-open-add aria-label="Apuntar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   <button data-tab="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.6-1-1.7-1.5-3-1.5-1.7 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.4 0-2.5-.6-3-1.6M12 6v2M12 16v2"/></svg>Dinero</button>
   <button data-tab="team" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.6c1.9.7 3.1 2.6 3.5 5.4"/></svg>Equipo<span class="badge" hidden></span></button>
@@ -555,7 +602,11 @@ const FIREBASE_CONFIG = {
 
 (() => {
   const PRICE = 8, CAP = 300, SALA_PCT = 0.5, SPLIT = 7;
-  const METHODS = ['Bizum', 'Efectivo', 'Transferencia', 'Invitación', 'Pendiente'];
+  const METHODS = ['Bizum', 'Efectivo', 'Transferencia', 'Colaboración', 'Pendiente'];
+  // Colaboración / featuring: no paga entrada. 'Invitación' era el nombre antiguo y se trata igual.
+  const FREE = m => m === 'Colaboración' || m === 'Invitación';
+  const mLabel = m => FREE(m) ? 'Colaboración' : m;
+  const mChip = m => m === 'Colaboración' ? 'Colab / Featuring' : m;
   const LINEUP = ['Depa El Hutt', 'Yvng Kirt', 'Unlimitedwifi', 'Shatter', 'Rauky', 'Chvck606'];
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
@@ -563,6 +614,7 @@ const FIREBASE_CONFIG = {
   let guests = {};            // id -> guest
   let tab = 'list', filter = 'all', sort = 'new';
   let store;                  // capa de guardado (local o nube)
+  let counter = { in: 0, total: CAP };   // contador de puerta: dentro / total de entradas
   let fresh = null, morphSrc = null;
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const VT = !!document.startViewTransition && !REDUCED;
@@ -582,7 +634,7 @@ const FIREBASE_CONFIG = {
   const byName = g => g.addedBy && g.addedBy.name ? g.addedBy.name : 'Sin registrar';
   const byKey = g => g.addedBy && g.addedBy.uid ? g.addedBy.uid : '_none';
   const fmtWhen = t => t ? new Date(t).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
-  const owes = g =>g.method === 'Pendiente' || (g.method !== 'Invitación' && (+g.paid || 0) < PRICE);
+  const owes = g =>g.method === 'Pendiente' || (!FREE(g.method) && (+g.paid || 0) < PRICE);
   const list = () => Object.values(guests).sort((a, b) => a.createdAt - b.createdAt);
   const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
@@ -607,12 +659,16 @@ const FIREBASE_CONFIG = {
         if (!data) { // migra la versión anterior de la app si existe
           try { const old = JSON.parse(lsGet('waxfest3_guestlist_v1') || 'null'); if (old && Array.isArray(old.guests)) { data = {}; old.guests.forEach(g => data[g.id] = g); } } catch {}
         }
-        guests = data || {}; this.flush(); cb();
+        guests = data || {}; this.flush();
+        try { counter = { ...counter, ...JSON.parse(lsGet('wf3_counter') || '{}') }; } catch {}
+        cb(); renderCounter();
         setSync('', 'Solo este dispositivo');
         window.addEventListener('storage', e => { if (e.key === KEY && e.newValue) { try { guests = JSON.parse(e.newValue); cb(); } catch {} } });
         if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
       },
       flush() { lsSet(KEY, JSON.stringify(guests)); },
+      counterAdd(d) { counter.in = Math.max(0, (counter.in || 0) + d); lsSet('wf3_counter', JSON.stringify(counter)); renderCounter(); },
+      counterSet(f, v) { counter[f] = v; lsSet('wf3_counter', JSON.stringify(counter)); renderCounter(); },
       put(g) { guests[g.id] = g; this.flush(); render(); },
       del(id) { delete guests[id]; this.flush(); render(); },
       replace(map) { guests = map; this.flush(); render(); }
@@ -643,13 +699,14 @@ const FIREBASE_CONFIG = {
   // Modo nube: Firebase. Cada dispositivo tiene un ID fijo (acceso anónimo) y un rol que da el admin.
   function CloudStore(key) {
     const CACHE = 'wf3_cache_' + key, E = 'events/' + key;
-    let db, gRef = null, mRef = null, uid = null, cb = () => {};
+    let db, gRef = null, mRef = null, cRef = null, uid = null, cb = () => {};
     const st = {
       mode: 'cloud', key,
       get uid() { return uid; },
       start(onChange) {
         cb = onChange; perm.local = false;
         try { guests = JSON.parse(lsGet(CACHE) || '{}') || {}; } catch { guests = {}; }
+        try { counter = { ...counter, ...JSON.parse(lsGet(CACHE + '_c') || '{}') }; } catch {}
         if (typeof firebase === 'undefined' || !firebase.auth) {
           setSync('off', 'Sin conexión · copia guardada'); perm.role = 'viewer'; perm.ready = true; applyPerm(); return;
         }
@@ -692,7 +749,18 @@ const FIREBASE_CONFIG = {
           mRef.on('value', s => { members = s.val() || {}; renderTeam(); }, () => { mRef = null; });
           db.ref(E + '/adminCodes').get().then(s => { adminCode = Object.keys(s.val() || {})[0] || adminCode; renderTeam(); }).catch(() => {});
         } else if (!can('admin') && mRef) { mRef.off(); mRef = null; members = {}; }
+        // el contador vive en "settings" (ya lo permiten las reglas: lo ve cualquiera, lo cambia un admin)
+        if (can('view') && !cRef) {
+          cRef = db.ref(E + '/settings/counter');
+          cRef.on('value', s => { counter = { in: 0, total: CAP, ...(s.val() || {}) }; lsSet(CACHE + '_c', JSON.stringify(counter)); renderCounter(); }, () => { cRef = null; });
+        } else if (!can('view') && cRef) { cRef.off(); cRef = null; }
       },
+      counterAdd(d) {
+        if (!cRef) return toast('Sin conexión');
+        counter.in = Math.max(0, (counter.in || 0) + d); renderCounter();
+        st.w(db.ref(E + '/settings/counter/in').transaction(v => Math.max(0, (v || 0) + d)));
+      },
+      counterSet(field, v) { if (!cRef) return toast('Sin conexión'); counter[field] = v; renderCounter(); st.w(db.ref(E + '/settings/counter/' + field).set(v)); },
       w(p) { return p.catch(e => { console.error(e); toast('No tienes permiso para eso'); }); },
       put(g) { if (!gRef) return toast('Sin conexión'); guests[g.id] = g; render(); st.w(db.ref(E + '/guests/' + g.id).set(g)); },
       del(id) { if (!gRef) return toast('Sin conexión'); delete guests[id]; render(); st.w(db.ref(E + '/guests/' + id).remove()); },
@@ -721,7 +789,7 @@ const FIREBASE_CONFIG = {
       else if (!can('view')) gate('waiting');
       else gate(null);
     }
-    render();
+    render(); renderCounter();
   }
 
   function gate(s, resolveName) {
@@ -839,7 +907,7 @@ const FIREBASE_CONFIG = {
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     dots: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>'
   };
-  const amtPill = g => g.method === 'Invitación' ? '<span class="amt inv">Invitación</span>'
+  const amtPill = g => FREE(g.method) ? '<span class="amt inv">Colab / Feat.</span>'
     : owes(g) ? `<span class="amt due">${g.paid ? 'Faltan ' + eur(PRICE - g.paid) : 'Debe ' + eur(PRICE)}</span>`
     : `<span class="amt">${eur(g.paid)}</span>`;
 
@@ -874,7 +942,7 @@ const FIREBASE_CONFIG = {
     $('#list').innerHTML = rows.length ? rows.map(g => `
       <div class="g ${g.entered ? 'in' : ''} ${g.id === fresh ? 'fresh' : ''}" data-id="${g.id}">
         <div class="av">${esc(initials(g.name))}<span class="num">${num[g.id]}</span></div>
-        <div class="nm" data-act="edit"><b>${esc(g.name)}</b><span>${[`<i class="by">por ${esc(byName(g))}</i>`].concat([g.contact, g.method, g.note].filter(Boolean).map(esc)).join(' · ')}</span></div>
+        <div class="nm" data-act="edit"><b>${esc(g.name)}</b><span>${[`<i class="by">por ${esc(byName(g))}</i>`].concat([g.contact, mChip(mLabel(g.method)), g.note].filter(Boolean).map(esc)).join(' · ')}</span></div>
         ${amtPill(g)}
         <div style="display:flex;gap:6px;align-items:center"><button class="more" data-act="edit" aria-label="Editar">${IC.dots}</button><button class="tick" data-act="toggle" aria-label="Marcar entrada">${IC.check}</button></div>
       </div>`).join('')
@@ -898,8 +966,8 @@ const FIREBASE_CONFIG = {
     $('#mTotal').textContent = eur(money); $('#mSala').textContent = eur(sala); $('#mRest').textContent = eur(rest);
     $('#mEach').textContent = eur(each); $('#mEachD').textContent = `${eur(rest)} ÷ ${SPLIT} personas`;
     $('#seven').innerHTML = Array.from({ length: SPLIT }, (_, i) => `<div><span>Nº ${i + 1}</span><b>${eur(each)}</b></div>`).join('');
-    const byM = {}; G.forEach(g => { byM[g.method] = byM[g.method] || { n: 0, s: 0 }; byM[g.method].n++; byM[g.method].s += +g.paid || 0; });
-    $('#mMethods').innerHTML = Object.keys(byM).length ? METHODS.filter(m => byM[m]).map(m => `<div class="rowkv"><span>${m} · ${byM[m].n}</span><b>${eur(byM[m].s)}</b></div>`).join('') : '<p class="note">Sin pagos todavía.</p>';
+    const byM = {}; G.forEach(g => { const mm = mLabel(g.method); byM[mm] = byM[mm] || { n: 0, s: 0 }; byM[mm].n++; byM[mm].s += +g.paid || 0; });
+    $('#mMethods').innerHTML = Object.keys(byM).length ? METHODS.filter(m => byM[m]).map(m => `<div class="rowkv"><span>${mChip(m)} · ${byM[m].n}</span><b>${eur(byM[m].s)}</b></div>`).join('') : '<p class="note">Sin pagos todavía.</p>';
     const byP = {}; G.forEach(g => { const k = byKey(g); byP[k] = byP[k] || { name: byName(g), n: 0, s: 0, due: 0 }; byP[k].n++; byP[k].s += +g.paid || 0; if (owes(g)) byP[k].due++; });
     $('#mBy').innerHTML = Object.keys(byP).length ? Object.entries(byP).sort((a, b) => b[1].s - a[1].s).map(([k, p]) => `<div class="rowkv byrow" data-by="${esc(k)}"><span><b class="byn">${esc(p.name)}</b> · ${p.n} persona${p.n > 1 ? 's' : ''}${p.due ? ` · <em class="byd">${p.due} sin cobrar</em>` : ''}</span><b>${eur(p.s)}</b></div>`).join('') : '<p class="note">Nadie apuntado todavía.</p>';
     $('#mDue').innerHTML =due.length ? due.map(g => `<div class="rowkv due"><span>${esc(g.name)}</span><b>${eur(PRICE - (+g.paid || 0))}</b></div>`).join('') : '<p class="note">Nadie debe nada.</p>';
@@ -941,11 +1009,11 @@ const FIREBASE_CONFIG = {
 
   /* ---------------- hoja de alta / edición ---------------- */
   let editing = null, method = 'Bizum';
-  $('#fMethod').innerHTML = METHODS.map(m => `<button type="button" data-m="${m}">${m}</button>`).join('');
+  $('#fMethod').innerHTML = METHODS.map(m => `<button type="button" data-m="${m}">${mChip(m)}</button>`).join('');
   $('#fAmtChips').innerHTML = [8, 4, 0].map(v => `<button type="button" data-v="${v}">${v}€</button>`).join('');
   function setMethod(m) {
     method = m; $$('#fMethod button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
-    const noAmt = m === 'Invitación' || m === 'Pendiente';
+    const noAmt = FREE(m) || m === 'Pendiente';
     $('#amtField').style.display = noAmt ? 'none' : '';
     if (noAmt) $('#fPaid').value = 0; else if (+$('#fPaid').value === 0) $('#fPaid').value = PRICE;
     syncAmt();
@@ -965,7 +1033,7 @@ const FIREBASE_CONFIG = {
     $('#fContact').value = editing ? editing.contact || '' : '';
     $('#fNote').value = editing ? editing.note || '' : '';
     $('#fPaid').value = editing ? editing.paid : PRICE;
-    setMethod(editing ? editing.method : 'Bizum');
+    setMethod(editing ? mLabel(editing.method) : 'Bizum');
     if (editing) $('#fPaid').value = editing.paid, syncAmt();
     $('#shAv').hidden = !editing; $('#shAv').textContent = editing ? initials(editing.name) : '';
     // historial: quién apuntó, editó y marcó la entrada
@@ -1013,7 +1081,7 @@ const FIREBASE_CONFIG = {
     e.preventDefault();
     const name = $('#fName').value.trim().replace(/\s+/g, ' ');
     if (!name) return;
-    const paid = (method === 'Invitación' || method === 'Pendiente') ? 0 : Math.max(0, +$('#fPaid').value || 0);
+    const paid = (FREE(method) || method === 'Pendiente') ? 0 : Math.max(0, +$('#fPaid').value || 0);
     if (editing) {
       store.put({ ...editing, name, contact: $('#fContact').value.trim(), note: $('#fNote').value.trim(), method, paid, editedBy: me(), editedAt: Date.now() });
       closeSheet(); toast('Cambios guardados'); return;
@@ -1058,6 +1126,36 @@ const FIREBASE_CONFIG = {
       store.replace(stampImport(map)); toast('Copia cargada', () => store.replace(prev));
     } catch { alert('Ese archivo no es una copia válida de la lista.'); }
   };
+
+  /* ---------------- contador de puerta ---------------- */
+  let lastIn = null;
+  function renderCounter() {
+    const n = counter.in || 0, total = Math.max(1, counter.total || CAP), left = Math.max(0, total - n);
+    $('#ctIn').textContent = n; $('#cLeft').textContent = left;
+    $('#cBar').style.width = Math.min(100, n / total * 100) + '%';
+    $('#cTotalTxt').textContent = `${n} de ${total} entradas · ${left ? 'quedan ' + left : 'aforo completo'}`;
+    $('#cLeft').classList.toggle('zero', !left);
+    if (lastIn !== null && n !== lastIn) ['#ctIn', '#cLeft'].forEach(s => { const el = $(s); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); });
+    lastIn = n;
+    // solo un admin puede pulsar (así funciona con las reglas que ya hay en Firebase); el resto lo ve en directo
+    const canCount = can('admin');
+    $('#cPlus').disabled = !canCount; $('#cMinus').disabled = !canCount || !n;
+    $('#cHint').hidden = canCount;
+    $$('[data-admin]').forEach(b => b.hidden = !can('admin'));
+  }
+  $('#cPlus').onclick = () => {
+    if (!can('admin')) return toast('Solo un admin puede usar el contador');
+    const total = counter.total || CAP;
+    if ((counter.in || 0) >= total && !confirm('Ya está completo. ¿Sumar igualmente?')) return;
+    store.counterAdd(1); if (navigator.vibrate) navigator.vibrate(25);
+    const b = $('#cPlus'); b.classList.remove('hit'); void b.offsetWidth; b.classList.add('hit');
+  };
+  $('#cMinus').onclick = () => { if (can('admin') && counter.in > 0) { store.counterAdd(-1); toast('Restada una persona'); } };
+  $('#cTotalBtn').onclick = () => {
+    const v = parseInt(prompt('¿Cuántas entradas hay en total?', counter.total || CAP), 10);
+    if (v > 0) store.counterSet('total', v);
+  };
+  $('#cReset').onclick = () => { if (confirm('¿Poner el contador de dentro a 0?')) store.counterSet('in', 0); };
 
   /* ---------------- efectos ---------------- */
   // Magnification tipo Dock: los elementos crecen según lo cerca que esté el dedo o el ratón
