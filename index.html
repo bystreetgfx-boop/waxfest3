@@ -274,6 +274,23 @@ body.nomoney .kpis{grid-template-columns:repeat(3,1fr)}
 @media (max-width:820px){.pwgrid{grid-template-columns:1fr}}
 
 .g.ro .more{visibility:hidden}
+/* datos del evento, mis eventos, aforo, whatsapp */
+.evgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.evgrid .field{margin-top:0}
+.evgrid .field.wide{grid-column:span 2}
+.evgrid .field span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.evgrid .gin{text-align:left;font-size:15px;padding:12px 14px}
+@media (max-width:820px){.evgrid{grid-template-columns:1fr 1fr}.evgrid .field.wide{grid-column:1/-1}}
+.evrow{text-decoration:none;color:inherit}
+.evrow.cur span b{color:var(--ok)}
+.evpick{text-align:left;border:1px solid var(--line);border-radius:16px;padding:4px 16px;margin-bottom:16px}
+.capwarn{margin-top:12px;padding:14px 18px;border-radius:14px;border:1px solid rgba(212,255,58,.4);background:rgba(212,255,58,.08);font-size:14px;color:var(--ink2)}
+.capwarn b{color:var(--ok);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.capwarn.full{border-color:rgba(255,91,72,.5);background:rgba(255,91,72,.1)}
+.capwarn.full b{color:var(--bad)}
+.wa{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;padding:13px;border-radius:14px;background:#1f3a2b;color:#d8ffe6;font-weight:700;font-size:14px;text-decoration:none;border:1px solid #2f6b47}
+.wa svg{width:18px;height:18px}
+.byrow .bycash{font-style:normal;color:var(--ok)}
 #fTicket small{font-weight:500;opacity:.7}
 
 /* ---------- CONTADOR ---------- */
@@ -403,7 +420,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
 
 <header class="top">
   <div class="wrap">
-    <div class="brand"><div class="mark">III</div><b>Wax Fest</b></div>
+    <div class="brand"><div class="mark" id="evMark">III</div><b id="evBrand">Wax Fest</b></div>
     <nav class="tabs-top" id="tabsTop">
       <button data-tab="list" class="on">Lista</button>
       <button data-tab="door">Puerta</button>
@@ -425,10 +442,10 @@ body.no-door .tick,body.no-door .d .go{display:none}
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="wrap hero-in">
-    <div class="eyebrow">Fentanilo Records × UWFZ</div>
-    <h1>Wax Fest <span class="out">III</span></h1>
-    <p class="serif">Guest list privada</p>
-    <div class="meta">
+    <div class="eyebrow" id="evOrg">Fentanilo Records × UWFZ</div>
+    <h1 id="evTitle">Wax Fest <span class="out">III</span></h1>
+    <p class="serif" id="evTag">Guest list privada</p>
+    <div class="meta" id="evMeta">
       <span class="chip"><b>Jue 19.11.2026</b></span>
       <span class="chip">Karaoke Feelings · Puerto de Alicante</span>
       <span class="chip">20:00 — 23:00</span>
@@ -441,12 +458,13 @@ body.no-door .tick,body.no-door .d .go{display:none}
 
 <div class="wrap">
   <section class="kpis">
-    <div class="kpi hl"><div class="k">En lista</div><div class="v"><span id="kCount">0</span><small> / 300</small></div><div class="meter"><i id="kCountBar"></i></div></div>
+    <div class="kpi hl"><div class="k">En lista</div><div class="v"><span id="kCount">0</span><small id="kCapTxt"> / 300</small></div><div class="meter"><i id="kCountBar"></i></div></div>
     <div class="kpi"><div class="k">Dentro</div><div class="v chrome" id="kIn">0</div><div class="meter"><i id="kInBar"></i></div></div>
     <div class="kpi money"><div class="k">Recaudado</div><div class="v chrome" id="kMoney">0€</div><div class="s" id="kDue">Todo cobrado</div></div>
-    <div class="kpi"><div class="k">Plazas libres</div><div class="v chrome" id="kFree">300</div><div class="s">de 300</div></div>
+    <div class="kpi"><div class="k">Plazas libres</div><div class="v chrome" id="kFree">300</div><div class="s" id="kFreeOf">de 300</div></div>
   </section>
 
+  <div class="capwarn" id="capWarn" hidden></div>
   <main>
     <!-- LISTA -->
     <section class="view on" id="v-list">
@@ -504,8 +522,8 @@ body.no-door .tick,body.no-door .d .go{display:none}
           <div class="k">Total recaudado</div>
           <div class="total chrome" id="mTotal">0€</div>
           <div class="splitbar">
-            <div><span>Sala · 50%</span><b id="mSala">0€</b></div>
-            <div><span>Reparto · 50%</span><b id="mRest">0€</b></div>
+            <div><span id="mSalaLbl">Sala · 50%</span><b id="mSala">0€</b></div>
+            <div><span id="mRestLbl">Reparto · 50%</span><b id="mRest">0€</b></div>
           </div>
           <p class="note" id="mLocal">La mitad para la sala cubre las consumiciones (cerveza o tinto de verano). La otra mitad se divide entre 7.</p>
         </div>
@@ -540,6 +558,35 @@ body.no-door .tick,body.no-door .d .go{display:none}
     <section class="view" id="v-team">
       <div class="sec-h"><h2>Equipo<em>y permisos</em></h2></div>
       <div class="panel">
+        <div class="k">Datos del evento</div>
+        <div class="evgrid">
+          <label class="field"><span>Nombre</span><input class="gin" id="evName" maxlength="30"></label>
+          <label class="field"><span>Edición / número</span><input class="gin" id="evEdition" maxlength="8" placeholder="III"></label>
+          <label class="field"><span>Organiza</span><input class="gin" id="evOrgIn" maxlength="60"></label>
+          <label class="field"><span>Frase bajo el título</span><input class="gin" id="evTagIn" maxlength="40"></label>
+          <label class="field"><span>Fecha (como se verá)</span><input class="gin" id="evDate" maxlength="30" placeholder="Jue 19.11.2026"></label>
+          <label class="field"><span>Horario</span><input class="gin" id="evHours" maxlength="30" placeholder="20:00 — 23:00"></label>
+          <label class="field wide"><span>Lugar</span><input class="gin" id="evVenue" maxlength="60"></label>
+          <label class="field"><span>Aforo</span><input class="gin" id="evCap" type="number" min="1" inputmode="numeric"></label>
+          <label class="field"><span>Precio entrada general (€)</span><input class="gin" id="evPrice" type="number" min="0" step="0.5" inputmode="decimal"></label>
+          <label class="field"><span>Incluye (texto)</span><input class="gin" id="evExtra" maxlength="40" placeholder="+ cerveza o tinto"></label>
+          <label class="field"><span>2ª entrada · nombre</span><input class="gin" id="evP2Name" maxlength="16" placeholder="Local"></label>
+          <label class="field"><span>2ª entrada · precio (€)</span><input class="gin" id="evPrice2" type="number" min="0" step="0.5" inputmode="decimal"></label>
+          <label class="field"><span>% de la general para la sala</span><input class="gin" id="evPct" type="number" min="0" max="100" inputmode="numeric"></label>
+          <label class="field"><span>Se reparte entre (personas)</span><input class="gin" id="evSplit" type="number" min="1" max="50" inputmode="numeric"></label>
+          <label class="field wide"><span>Line up (separado por comas)</span><input class="gin" id="evLineup" maxlength="300"></label>
+          <label class="field wide"><span>Cartel (imagen)</span><input class="gin" id="evPoster" type="file" accept="image/*"></label>
+        </div>
+        <label class="switch"><input type="checkbox" id="evP2Venue"><i></i><span>El dinero de la 2ª entrada va <b>entero a la sala</b></span></label>
+        <div class="tools"><button class="btn" id="evSave">Guardar datos del evento</button><button class="btn ghost" id="evPosterDel">Quitar cartel</button></div>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <div class="k">Mis eventos</div>
+        <div id="evList" style="margin-top:10px"></div>
+        <div class="tools"><button class="btn ghost" id="evNew">+ Crear otro evento</button></div>
+        <p class="note">Cada evento tiene su propio enlace, su lista, sus contraseñas y su dinero, totalmente separados.</p>
+      </div>
+      <div class="panel" style="margin-top:12px">
         <div class="k">Contraseñas</div>
         <div class="pwgrid">
           <label class="field"><span>Contraseña de equipo · entra como Editor</span><input id="pwTeam" class="gin" autocomplete="off" placeholder="Ej: wax2026"></label>
@@ -578,10 +625,14 @@ body.no-door .tick,body.no-door .d .go{display:none}
   <div class="grab"></div>
   <div class="sh-head"><div class="av sh-av" id="shAv" hidden></div><h3 id="shTitle">Apuntar<em>a alguien</em></h3></div>
   <div class="audit" id="shAudit" hidden></div>
+  <a class="wa" id="shWa" hidden target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.7 11.7 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+    Enviar confirmación por WhatsApp
+  </a>
   <form id="shForm" autocomplete="off">
     <div class="field"><label>Nombre y apellido</label><input id="fName" required placeholder="Ej: Pablo García" enterkeyhint="next"></div>
     <div class="field"><label>Instagram o teléfono</label><input id="fContact" placeholder="@usuario" enterkeyhint="done"></div>
-    <div class="field"><label>Tipo de entrada</label><div class="chips" id="fTicket"><button type="button" data-t="normal">General · 8€</button><button type="button" data-t="local">Local · 4€ <small>(para la sala)</small></button></div></div>
+    <div class="field"><label>Tipo de entrada</label><div class="chips" id="fTicket"><button type="button" data-t="normal" id="tNormal">General · 8€</button><button type="button" data-t="local" id="tLocal">Local · 4€ <small>(para la sala)</small></button></div></div>
     <div class="field"><label>Cómo ha pagado</label><div class="chips" id="fMethod"></div></div>
     <div class="field" id="amtField"><label>Importe</label><div class="amtrow"><div class="chips" id="fAmtChips"></div><input id="fPaid" type="number" inputmode="decimal" min="0" step="0.5"></div></div>
     <div class="field"><label>Nota</label><input id="fNote" placeholder="Opcional"></div>
@@ -620,9 +671,19 @@ const FIREBASE_CONFIG = {
 };
 
 (() => {
-  const PRICE = 8, CAP = 300, SALA_PCT = 0.5, SPLIT = 7;
+  // Valores del evento: salen de "Datos del evento" (Equipo). Estos son los de WAX FEST III por defecto.
+  let PRICE = 8, CAP = 300, SALA_PCT = 0.5, SPLIT = 7;
+  const DEF_EVENT = {
+    name: 'Wax Fest', edition: 'III', org: 'Fentanilo Records × UWFZ', tag: 'Guest list privada',
+    date: 'Jue 19.11.2026', hours: '20:00 — 23:00', venue: 'Karaoke Feelings · Puerto de Alicante',
+    cap: 300, price: 8, extra: '+ cerveza o tinto', p2Name: 'Local', price2: 4, p2Venue: true, pct: 50, split: 7,
+    lineup: 'Depa El Hutt, Yvng Kirt, Unlimitedwifi, Shatter, Rauky, Chvck606', poster: ''
+  };
+  // Plantilla para un evento nuevo (cuando se crea otro desde "Mis eventos")
+  const NEW_EVENT = { ...DEF_EVENT, name: 'Nuevo evento', edition: '', org: '', tag: 'Guest list', date: 'Fecha por decidir', hours: '', venue: 'Lugar por decidir', extra: '', lineup: '', poster: 'none' };
+  let EV = { ...DEF_EVENT };
   // Entrada "Local" a 4€: ese dinero va entero a la sala (no entra en el 50/50 ni en el reparto)
-  const LOCAL_PRICE = 4;
+  let LOCAL_PRICE = 4;
   const isLocal = g => g && g.ticket === 'local';
   const priceOf = g => isLocal(g) ? LOCAL_PRICE : PRICE;
   const METHODS = ['Bizum', 'Efectivo', 'Transferencia', 'Colaboración', 'Pendiente'];
@@ -637,7 +698,7 @@ const FIREBASE_CONFIG = {
   let guests = {};            // id -> guest
   let tab = 'list', filter = 'all', sort = 'new';
   let store;                  // capa de guardado (local o nube)
-  let counter = { in: 0, total: CAP };   // contador de puerta: dentro / total de entradas
+  let counter = { in: 0 };   // contador de puerta: dentro / total de entradas (si no hay total, se usa el aforo)
   let fresh = null, morphSrc = null;
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const VT = !!document.startViewTransition && !REDUCED;
@@ -692,6 +753,7 @@ const FIREBASE_CONFIG = {
       flush() { lsSet(KEY, JSON.stringify(guests)); },
       counterAdd(d) { counter.in = Math.max(0, (counter.in || 0) + d); lsSet('wf3_counter', JSON.stringify(counter)); renderCounter(); },
       counterSet(f, v) { counter[f] = v; lsSet('wf3_counter', JSON.stringify(counter)); renderCounter(); },
+      setEvent(ev) { lsSet('wf3_ev_local', JSON.stringify(ev)); applyEvent(ev); return Promise.resolve(); },
       put(g) { guests[g.id] = g; this.flush(); render(); },
       del(id) { delete guests[id]; this.flush(); render(); },
       replace(map) { guests = map; this.flush(); render(); }
@@ -752,14 +814,15 @@ const FIREBASE_CONFIG = {
         const info = { name: lsGet('wf3_name') || 'Sin nombre', device: deviceLabel(), lastSeen: firebase.database.ServerValue.TIMESTAMP };
         if (!owner) {
           if (lsGet('wf3_creating') !== key) { perm.exists = false; perm.ready = true; applyPerm(); return; }
-          const name = (prompt('Tu nombre (saldrá como quien apunta a la gente):') || 'Organizador').trim() || 'Organizador';
+          const name = await askOwnerName();
           lsSet('wf3_name', name); info.name = name;
           await db.ref(E + '/owner').set(uid);
           const code = randKey(10);
           await db.ref(E + '/members/' + uid).set({ info: { ...info, firstSeen: Date.now() }, role: 'admin', claim: code });
           await db.ref(E + '/adminCodes/' + code).set(true);
+          await db.ref(E + '/settings/event').set(NEW_EVENT).catch(() => {});
           try { localStorage.removeItem('wf3_creating'); } catch {}
-          setTimeout(() => { setTab('team'); alert('Lista creada. Ahora pon en la pestaña Equipo la contraseña de equipo y la de admin.'); }, 600);
+          setTimeout(() => { setTab('team'); toast('Evento creado · rellena los datos y pon las contraseñas'); }, 600);
         } else {
           const me = (await db.ref(E + '/members/' + uid + '/info').get()).val();
           await db.ref(E + '/members/' + uid + '/info').update(me ? { device: info.device, lastSeen: info.lastSeen, ...(lsGet('wf3_name') ? { name: info.name } : {}) } : { ...info, firstSeen: Date.now() });
@@ -797,9 +860,13 @@ const FIREBASE_CONFIG = {
             pw.team = Object.keys(a.val() || {})[0] || ''; pw.admin = Object.keys(b.val() || {})[0] || ''; renderTeam(true);
           }).catch(() => {});
         } else if (!can('admin') && mRef) { mRef.off(); mRef = null; members = {}; }
+        if (!st.evOn) {
+          st.evOn = true;
+          db.ref(E + '/settings/event').on('value', s => { const v = s.val(); lsSet(evKey(), JSON.stringify(v)); applyEvent(v); }, () => { st.evOn = false; });
+        }
         if (can('view') && !cRef) {
           cRef = db.ref(E + '/counter');
-          cRef.on('value', s => { counter = { in: 0, total: CAP, ...(s.val() || {}) }; lsSet(CACHE + '_c', JSON.stringify(counter)); renderCounter(); }, () => { cRef = null; });
+          cRef.on('value', s => { counter = { in: 0, ...(s.val() || {}) }; lsSet(CACHE + '_c', JSON.stringify(counter)); renderCounter(); }, () => { cRef = null; });
         }
       },
       // copia pública (nombres y entradas) siempre al día con la lista completa
@@ -816,6 +883,7 @@ const FIREBASE_CONFIG = {
         st.w(db.ref(E + '/counter/in').transaction(v => Math.max(0, (v || 0) + d)));
       },
       counterSet(field, v) { if (!cRef) return toast('Sin conexión'); counter[field] = v; renderCounter(); st.w(db.ref(E + '/counter/' + field).set(v)); },
+      setEvent(ev) { return db.ref(E + '/settings/event').set(ev); },
       w(p) { return p.catch(e => { console.error(e); toast('No tienes permiso para eso'); }); },
       put(g) { if (!gRef) return toast('Sin conexión'); guests[g.id] = g; render(); st.w(db.ref(E).update({ ['guests/' + g.id]: g, ['public/' + g.id]: pub(g) })); },
       del(id) { if (!gRef) return toast('Sin conexión'); delete guests[id]; render(); st.w(db.ref(E).update({ ['guests/' + id]: null, ['public/' + id]: null })); },
@@ -870,7 +938,7 @@ const FIREBASE_CONFIG = {
     if (!s) { g.classList.remove('on'); return; }
     const id = store && store.uid ? store.uid.slice(-6).toUpperCase() : '';
     const T = {
-      enter: `<h2>Wax Fest III</h2><p>Con la contraseña del equipo puedes apuntar gente. Sin contraseña solo ves la lista.</p>
+      enter: `<h2>${esc((EV.name + (EV.edition ? ' ' + EV.edition : '')).trim())}</h2><p>Con la contraseña del equipo puedes apuntar gente. Sin contraseña solo ves la lista.</p>
         <form class="acts" id="enterForm">
           <input class="gin" id="gName" maxlength="40" placeholder="Tu nombre" autocomplete="name" value="${esc(lsGet('wf3_name') || '')}">
           <input class="gin" id="gPass" type="password" placeholder="Contraseña" autocomplete="current-password">
@@ -878,11 +946,19 @@ const FIREBASE_CONFIG = {
           <button class="btn" id="gGo">Entrar</button>
           ${perm.role ? '<button type="button" class="btn ghost" data-g="close">Cancelar</button>' : '<button type="button" class="btn ghost" data-g="view">Ver la lista sin contraseña</button>'}
         </form>`,
-      nokey: `<h2>Wax Fest III</h2><p>Esta lista es privada. Ábrela con el enlace que te han pasado.</p><div class="acts"><button class="btn" data-g="new">Soy el organizador · crear lista</button><button class="btn ghost" data-g="paste">Pegar enlace</button></div>`,
+      owner: `<h2>Nuevo<br>evento</h2><p>Eres el organizador. Pon tu nombre: saldrá como quien apunta a la gente.</p><form class="acts" id="ownerForm"><input class="gin" id="gOwner" required maxlength="40" placeholder="Tu nombre" autocomplete="name" value="${esc(lsGet('wf3_name') || '')}"><button class="btn">Crear evento</button></form>`,
+      nokey: `<h2>Guest list</h2><p>Esta lista es privada. Ábrela con el enlace que te han pasado.</p>${eventLinks() ? `<div class="evpick">${eventLinks()}</div>` : ''}<div class="acts"><button class="btn" data-g="new">Soy el organizador · crear evento</button><button class="btn ghost" data-g="paste">Pegar enlace</button></div>`,
       notfound: `<h2>No existe</h2><p>Este enlace no corresponde a ninguna lista. Pide el enlace correcto al organizador.</p><div class="acts"><button class="btn ghost" data-g="paste">Pegar otro enlace</button></div>`,
       blocked: `<h2>Sin<br>acceso</h2><p>El organizador ha bloqueado este dispositivo.</p><div class="devcard"><span>${esc(deviceLabel())} · ID ${id}</span></div>`
     };
     box.innerHTML = T[s]; g.classList.add('on');
+    if (s === 'owner') {
+      setTimeout(() => $('#gOwner').focus(), 100);
+      $('#ownerForm').onsubmit = e => {
+        e.preventDefault(); const v = $('#gOwner').value.trim().replace(/\s+/g, ' '); if (!v) return;
+        lsSet('wf3_name', v); gate(null); if (ownerResolve) { ownerResolve(v); ownerResolve = null; }
+      };
+    }
     if (s === 'enter') {
       setTimeout(() => (lsGet('wf3_name') ? $('#gPass') : $('#gName')).focus(), 100);
       $('#enterForm').onsubmit = async e => {
@@ -913,6 +989,10 @@ const FIREBASE_CONFIG = {
     if (a === 'close') gate(null);
   });
   $('#keyBtn').onclick = () => gate('enter', true);
+  let ownerResolve = null;
+  const askOwnerName = () => new Promise(res => { ownerResolve = res; gate('owner', true); });
+  // las animaciones de transición avisan si se interrumpen; no es un error real
+  window.addEventListener('unhandledrejection', e => { if (e.reason && /Transition/i.test(e.reason.message || '')) e.preventDefault(); });
 
   // ---------- Pestaña Equipo ----------
   const ago = t => { if (!t) return ''; const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'ahora' : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} d`; };
@@ -1014,6 +1094,11 @@ const FIREBASE_CONFIG = {
     $('#kMoney').textContent = eur(money);
     $('#kDue').textContent = due.length ? `${due.length} pendiente${due.length > 1 ? 's' : ''} de cobro` : 'Todo cobrado';
     $('#kFree').textContent = Math.max(0, CAP - N);
+    // aviso de aforo
+    const cw = $('#capWarn'), free = CAP - N;
+    cw.hidden = !(perm.local || can('view')) || N < CAP * 0.9;
+    cw.className = 'capwarn' + (free <= 0 ? ' full' : '');
+    cw.innerHTML = free <= 0 ? `<b>Aforo completo</b> · ${N} de ${CAP}${free < 0 ? ` (${-free} de más)` : ''}` : `<b>Casi lleno</b> · quedan ${free} plaza${free === 1 ? '' : 's'} de ${CAP}`;
     $('#cAll').textContent = N; $('#cOut').textContent = N - inside; $('#cIn').textContent = inside; $('#cDue').textContent = due.length;
 
     // lista
@@ -1054,19 +1139,22 @@ const FIREBASE_CONFIG = {
       : `<div class="empty"><b>${dq ? 'No está en la lista' : N ? 'Han entrado todos' : 'Lista vacía'}</b><span>${dq ? 'Revisa cómo se escribe o búscalo por su @' : ''}</span></div>`;
 
     // dinero
-    const localG = G.filter(isLocal), localMoney = localG.reduce((s, g) => s + (+g.paid || 0), 0);
+    const localG = EV.p2Venue ? G.filter(isLocal) : [], localMoney = localG.reduce((s, g) => s + (+g.paid || 0), 0);
     const normalMoney = money - localMoney;
     const sala = normalMoney * SALA_PCT + localMoney, rest = normalMoney - normalMoney * SALA_PCT, each = rest / SPLIT;
     $('#mTotal').textContent = eur(money); $('#mSala').textContent = eur(sala); $('#mRest').textContent = eur(rest);
+    const pct = Math.round(SALA_PCT * 100), p2 = esc(EV.p2Name || 'Local');
+    $('#mSalaLbl').textContent = `Sala · ${pct}%`; $('#mRestLbl').textContent = `Reparto · ${100 - pct}%`;
     $('#mLocal').innerHTML = localG.length
-      ? `Entradas de local (${eur(LOCAL_PRICE)}): <b>${localG.length}</b> · <b>${eur(localMoney)}</b> que van <b>enteros a la sala</b>. Entradas normales: ${eur(normalMoney)}, la mitad para la sala y la otra mitad entre ${SPLIT}.`
-      : `La mitad de las entradas normales es para la sala (cubre las consumiciones). La otra mitad se divide entre ${SPLIT}. Las entradas de local (${eur(LOCAL_PRICE)}) van enteras a la sala.`;
+      ? `Entradas ${p2} (${eur(LOCAL_PRICE)}): <b>${localG.length}</b> · <b>${eur(localMoney)}</b> que van <b>enteros a la sala</b>. Entradas generales: ${eur(normalMoney)}, el ${pct}% para la sala y el resto entre ${SPLIT}.`
+      : `El ${pct}% de las entradas generales es para la sala. El resto se divide entre ${SPLIT}.${EV.p2Venue ? ` Las entradas ${p2} (${eur(LOCAL_PRICE)}) van enteras a la sala.` : ''}`;
     $('#mEach').textContent = eur(each); $('#mEachD').textContent = `${eur(rest)} ÷ ${SPLIT} personas`;
     $('#seven').innerHTML = Array.from({ length: SPLIT }, (_, i) => `<div><span>Nº ${i + 1}</span><b>${eur(each)}</b></div>`).join('');
     const byM = {}; G.forEach(g => { const mm = mLabel(g.method); byM[mm] = byM[mm] || { n: 0, s: 0 }; byM[mm].n++; byM[mm].s += +g.paid || 0; });
     $('#mMethods').innerHTML = Object.keys(byM).length ? METHODS.filter(m => byM[m]).map(m => `<div class="rowkv"><span>${mChip(m)} · ${byM[m].n}</span><b>${eur(byM[m].s)}</b></div>`).join('') : '<p class="note">Sin pagos todavía.</p>';
-    const byP = {}; G.forEach(g => { const k = byKey(g); byP[k] = byP[k] || { name: byName(g), n: 0, s: 0, due: 0 }; byP[k].n++; byP[k].s += +g.paid || 0; if (owes(g)) byP[k].due++; });
-    $('#mBy').innerHTML = Object.keys(byP).length ? Object.entries(byP).sort((a, b) => b[1].s - a[1].s).map(([k, p]) => `<div class="rowkv byrow" data-by="${esc(k)}"><span><b class="byn">${esc(p.name)}</b> · ${p.n} persona${p.n > 1 ? 's' : ''}${p.due ? ` · <em class="byd">${p.due} sin cobrar</em>` : ''}</span><b>${eur(p.s)}</b></div>`).join('') : '<p class="note">Nadie apuntado todavía.</p>';
+    // cierre de caja: cuánto ha cobrado cada uno y cuánto tiene en efectivo (lo que te tiene que dar en mano)
+    const byP = {}; G.forEach(g => { const k = byKey(g); byP[k] = byP[k] || { name: byName(g), n: 0, s: 0, cash: 0, due: 0 }; byP[k].n++; byP[k].s += +g.paid || 0; if (g.method === 'Efectivo') byP[k].cash += +g.paid || 0; if (owes(g)) byP[k].due++; });
+    $('#mBy').innerHTML = Object.keys(byP).length ? Object.entries(byP).sort((a, b) => b[1].s - a[1].s).map(([k, p]) => `<div class="rowkv byrow" data-by="${esc(k)}"><span><b class="byn">${esc(p.name)}</b> · ${p.n} persona${p.n > 1 ? 's' : ''}${p.cash ? ` · <em class="bycash">${eur(p.cash)} en efectivo</em>` : ''}${p.due ? ` · <em class="byd">${p.due} sin cobrar</em>` : ''}</span><b>${eur(p.s)}</b></div>`).join('') : '<p class="note">Nadie apuntado todavía.</p>';
     $('#mDue').innerHTML =due.length ? due.map(g => `<div class="rowkv due"><span>${esc(g.name)}</span><b>${eur(priceOf(g) - (+g.paid || 0))}</b></div>`).join('') : '<p class="note">Nadie debe nada.</p>';
   }
 
@@ -1146,6 +1234,8 @@ const FIREBASE_CONFIG = {
     if (editing) $('#fPaid').value = editing.paid, syncAmt();
     $('#shAv').hidden = !editing; $('#shAv').textContent = editing ? initials(editing.name) : '';
     // historial: quién apuntó, editó y marcó la entrada
+    const wa = editing ? waLink(editing) : '';
+    $('#shWa').hidden = !wa; if (wa) $('#shWa').href = wa;
     $('#shAudit').hidden = !editing;
     if (editing) $('#shAudit').innerHTML = [
       `<div><span>Apuntado por</span><b>${esc(byName(editing))}</b><i>${fmtWhen(editing.createdAt)}</i></div>`,
@@ -1290,7 +1380,7 @@ const FIREBASE_CONFIG = {
   magnify($('#seven'), .22, 150, 10);
 
   // Blur: el título aparece letra a letra
-  (function splitTitle() {
+  function splitTitle() {
     if (REDUCED) return;
     let i = 0;
     const walk = node => [...node.childNodes].forEach(n => {
@@ -1305,7 +1395,8 @@ const FIREBASE_CONFIG = {
       } else walk(n);
     });
     walk($('.hero h1'));
-  })();
+  }
+  splitTitle();
 
   // Blur: tarjetas que se enfocan al entrar en pantalla
   if (!REDUCED && 'IntersectionObserver' in window) {
@@ -1316,8 +1407,116 @@ const FIREBASE_CONFIG = {
   }
 
   /* ---------------- arranque ---------------- */
-  const tk = LINEUP.map(n => `<span>${n}</span>`).join('');
-  $('#ticker').innerHTML = tk + tk + tk + tk;
+  /* ---------------- datos del evento (configurables) ---------------- */
+  const evKey = () => 'wf3_ev_' + ((store && store.key) || 'local');
+  let lastTitle = null;
+  function applyEvent(ev) {
+    EV = { ...DEF_EVENT, ...(ev || {}) };
+    PRICE = Math.max(0, +EV.price || 0); LOCAL_PRICE = Math.max(0, +EV.price2 || 0);
+    CAP = Math.max(1, parseInt(EV.cap, 10) || 300); SALA_PCT = Math.min(100, Math.max(0, +EV.pct || 0)) / 100;
+    SPLIT = Math.max(1, parseInt(EV.split, 10) || 1);
+    const full = (EV.name + (EV.edition ? ' ' + EV.edition : '')).trim();
+    document.title = full + ' · Guest List';
+    $('#evBrand').textContent = EV.name; $('#evMark').textContent = EV.edition || initials(EV.name) || '·';
+    $('#evOrg').textContent = EV.org; $('#evOrg').hidden = !EV.org;
+    $('#evTag').textContent = EV.tag;
+    const t = `${esc(EV.name)}${EV.edition ? ` <span class="out">${esc(EV.edition)}</span>` : ''}`;
+    if (t !== lastTitle) { $('#evTitle').innerHTML = t; lastTitle = t; splitTitle(); }
+    $('#evMeta').innerHTML = [
+      EV.date && `<span class="chip"><b>${esc(EV.date)}</b></span>`,
+      EV.venue && `<span class="chip">${esc(EV.venue)}</span>`,
+      EV.hours && `<span class="chip">${esc(EV.hours)}</span>`,
+      `<span class="chip"><b>${eur(PRICE)}</b>${EV.extra ? ' ' + esc(EV.extra) : ''}</span>`,
+      `<span class="chip">Aforo ${CAP}</span>`
+    ].filter(Boolean).join('');
+    const names = String(EV.lineup || '').split(',').map(s => s.trim()).filter(Boolean);
+    const tk = names.map(n => `<span>${esc(n)}</span>`).join('');
+    $('#ticker').innerHTML = tk + tk + tk + tk; $('.ticker').hidden = !names.length;
+    // '' = cartel de WAX FEST que va dentro de la app · 'none' = sin cartel · data:... = cartel subido
+    $('.hero-bg').style.backgroundImage = EV.poster === 'none' ? 'none' : EV.poster ? `url("${EV.poster}")` : '';
+    $('#kCapTxt').textContent = ' / ' + CAP; $('#kFreeOf').textContent = 'de ' + CAP;
+    $('#tNormal').textContent = `General · ${eur(PRICE)}`;
+    $('#tLocal').innerHTML = `${esc(EV.p2Name || 'Local')} · ${eur(LOCAL_PRICE)}${EV.p2Venue ? ' <small>(para la sala)</small>' : ''}`;
+    $$('#fAmtChips button').forEach((b, i) => { const v = [PRICE, LOCAL_PRICE, 0][i]; b.dataset.v = v; b.textContent = eur(v); });
+    rememberEvent();
+    fillEventForm();
+    render(); renderCounter();
+  }
+  function fillEventForm() {
+    if (document.activeElement && document.activeElement.closest && document.activeElement.closest('.evgrid')) return;
+    const set = (id, v) => { const el = $(id); if (el) el.value = v ?? ''; };
+    set('#evName', EV.name); set('#evEdition', EV.edition); set('#evOrgIn', EV.org); set('#evTagIn', EV.tag);
+    set('#evDate', EV.date); set('#evHours', EV.hours); set('#evVenue', EV.venue); set('#evCap', EV.cap);
+    set('#evPrice', EV.price); set('#evExtra', EV.extra); set('#evP2Name', EV.p2Name); set('#evPrice2', EV.price2);
+    set('#evPct', EV.pct); set('#evSplit', EV.split); set('#evLineup', EV.lineup);
+    $('#evP2Venue').checked = !!EV.p2Venue; $('#evPosterDel').hidden = EV.poster === 'none';
+  }
+  let pendingPoster = null;
+  $('#evPoster').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try { pendingPoster = await shrinkImage(f, 900, 0.72); toast('Cartel listo: pulsa «Guardar datos del evento»'); }
+    catch { toast('No se ha podido leer la imagen'); }
+  };
+  $('#evPosterDel').onclick = () => { pendingPoster = 'none'; saveEvent(); };
+  function shrinkImage(file, maxW, q) {
+    return new Promise((res, rej) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => {
+        const s = Math.min(1, maxW / img.width), c = document.createElement('canvas');
+        c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+        let d = c.toDataURL('image/jpeg', q); if (d.length > 450000) d = c.toDataURL('image/jpeg', 0.5);
+        res(d);
+      };
+      img.onerror = rej; img.src = url;
+    });
+  }
+  function saveEvent() {
+    if (!can('admin')) return toast('Solo un admin puede cambiar los datos del evento');
+    const v = id => $(id).value.trim(), n = (id, d) => { const x = parseFloat($(id).value); return isFinite(x) ? x : d; };
+    const ev = {
+      name: v('#evName') || 'Evento', edition: v('#evEdition'), org: v('#evOrgIn'), tag: v('#evTagIn'),
+      date: v('#evDate'), hours: v('#evHours'), venue: v('#evVenue'), cap: Math.max(1, Math.round(n('#evCap', 300))),
+      price: Math.max(0, n('#evPrice', 8)), extra: v('#evExtra'), p2Name: v('#evP2Name') || 'Reducida', price2: Math.max(0, n('#evPrice2', 4)),
+      p2Venue: $('#evP2Venue').checked, pct: Math.min(100, Math.max(0, n('#evPct', 50))), split: Math.max(1, Math.round(n('#evSplit', 7))),
+      lineup: v('#evLineup'), poster: pendingPoster !== null ? pendingPoster : (EV.poster || '')
+    };
+    pendingPoster = null; $('#evPoster').value = '';
+    store.setEvent(ev).then(() => toast('Datos del evento guardados')).catch(e => { console.error(e); toast('No se han podido guardar'); });
+  }
+  $('#evSave').onclick = saveEvent;
+
+  // Mis eventos: los que se han abierto en este dispositivo
+  function myEvents() { try { return JSON.parse(lsGet('wf3_events') || '{}') || {}; } catch { return {}; } }
+  function rememberEvent() {
+    if (!store || !store.key) return;
+    const m = myEvents(); m[store.key] = { name: (EV.name + (EV.edition ? ' ' + EV.edition : '')).trim(), date: EV.date || '', at: Date.now() };
+    lsSet('wf3_events', JSON.stringify(m)); renderEventList();
+  }
+  function eventLinks(current) {
+    const base = location.href.split('#')[0];
+    return Object.entries(myEvents()).sort((a, b) => b[1].at - a[1].at).map(([k, e]) =>
+      `<a class="rowkv evrow${k === current ? ' cur' : ''}" href="${base}#k=${k}"><span><b>${esc(e.name)}</b>${e.date ? ' · ' + esc(e.date) : ''}</span><b>${k === current ? 'Abierto' : 'Abrir →'}</b></a>`).join('');
+  }
+  function renderEventList() { const el = $('#evList'); if (el) el.innerHTML = eventLinks(store && store.key) || '<p class="note">Solo este.</p>'; }
+  $('#evNew').onclick = () => {
+    if (!confirm('¿Crear un evento nuevo? Tendrá su propio enlace, lista y contraseñas. Este no se toca.')) return;
+    const k = randKey(28); lsSet('wf3_key', k); lsSet('wf3_creating', k); location.hash = 'k=' + k; location.reload();
+  };
+
+  // Confirmación por WhatsApp (solo si el contacto es un teléfono)
+  function waLink(g) {
+    const d = String(g.contact || '').replace(/[^\d+]/g, '');
+    const digits = d.replace(/\D/g, ''); if (digits.length < 9) return '';
+    const num = d.startsWith('+') ? digits : (digits.length === 9 ? '34' + digits : digits);
+    const full = (EV.name + (EV.edition ? ' ' + EV.edition : '')).trim();
+    const tick = isLocal(g) ? `${EV.p2Name} ${eur(LOCAL_PRICE)}` : `General ${eur(PRICE)}`;
+    const pay = FREE(g.method) ? 'Colab / Featuring' : owes(g) ? `pendiente de pago (${eur(priceOf(g) - (+g.paid || 0))})` : `pagado (${eur(+g.paid || 0)}, ${mLabel(g.method)})`;
+    const txt = `Hola ${g.name}! Estás en la lista de ${full} ✅\n📅 ${EV.date}${EV.hours ? ' · ' + EV.hours : ''}\n📍 ${EV.venue}\n🎟️ Entrada ${tick} · ${pay}\nDi tu nombre en la puerta.`;
+    return `https://wa.me/${num}?text=${encodeURIComponent(txt)}`;
+  }
+
+  try { applyEvent(JSON.parse(lsGet('wf3_ev_' + (getKey() || 'local')) || 'null')); } catch { applyEvent(null); }
   boot();
 })();
 </script>
