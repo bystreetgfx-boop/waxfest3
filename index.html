@@ -264,6 +264,15 @@ body.sheet-open .top{filter:blur(4px)}
 .g.fresh{animation:blurIn .9s var(--ease) both}
 .gate.on .box{animation:blurIn .8s var(--ease) both}
 
+/* ---------- SIN CONTRASEÑA: solo la lista de nombres ---------- */
+body.nomoney .kpi.money,body.nomoney .amt,body.nomoney i.by,body.nomoney #byF,body.nomoney #filter [data-f="due"],body.nomoney .more{display:none!important}
+body.nomoney .kpis{grid-template-columns:repeat(3,1fr)}
+@media (max-width:820px){body.nomoney .kpis{grid-template-columns:1fr 1fr}}
+.pwgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.pwgrid .field span{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.pwgrid .gin{text-align:left;font-family:var(--mono)}
+@media (max-width:820px){.pwgrid{grid-template-columns:1fr}}
+
 /* ---------- CONTADOR ---------- */
 .counter{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;border:1px solid var(--line);border-radius:30px;padding:34px 28px;background:radial-gradient(ellipse at center,rgba(255,255,255,.06),transparent 70%),var(--card)}
 .cside .k{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
@@ -401,6 +410,9 @@ body.no-door .tick,body.no-door .d .go{display:none}
     </nav>
     <div class="sync" id="sync"><i></i><span id="syncTxt">Cargando…</span></div>
     <span class="roletag" id="roleTag"></span>
+    <button class="iconbtn" id="keyBtn" title="Entrar con contraseña" aria-label="Entrar con contraseña" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3M16 7l3 3M14 9l2 2"/></svg>
+    </button>
     <button class="iconbtn" id="shareBtn" title="Compartir enlace" aria-label="Compartir enlace">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>
     </button>
@@ -428,7 +440,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
   <section class="kpis">
     <div class="kpi hl"><div class="k">En lista</div><div class="v"><span id="kCount">0</span><small> / 300</small></div><div class="meter"><i id="kCountBar"></i></div></div>
     <div class="kpi"><div class="k">Dentro</div><div class="v chrome" id="kIn">0</div><div class="meter"><i id="kInBar"></i></div></div>
-    <div class="kpi"><div class="k">Recaudado</div><div class="v chrome" id="kMoney">0€</div><div class="s" id="kDue">Todo cobrado</div></div>
+    <div class="kpi money"><div class="k">Recaudado</div><div class="v chrome" id="kMoney">0€</div><div class="s" id="kDue">Todo cobrado</div></div>
     <div class="kpi"><div class="k">Plazas libres</div><div class="v chrome" id="kFree">300</div><div class="s">de 300</div></div>
   </section>
 
@@ -473,7 +485,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
       </div>
       <div class="cbar"><i id="cBar"></i></div>
       <p class="ctotal mono" id="cTotalTxt">de 300 entradas</p>
-      <p class="note" id="cHint" style="text-align:center" hidden>Lo ves en directo. Solo los admin pueden sumar o restar.</p>
+      <p class="note" id="cHint" style="text-align:center" hidden>Lo ves en directo. Para sumar o restar necesitas permiso de Puerta.</p>
       <div class="cfoot">
         <button class="btn ghost" id="cMinus">−1 Deshacer</button>
         <button class="btn ghost" id="cTotalBtn" data-admin>Cambiar total</button>
@@ -525,21 +537,24 @@ body.no-door .tick,body.no-door .d .go{display:none}
     <section class="view" id="v-team">
       <div class="sec-h"><h2>Equipo<em>y permisos</em></h2></div>
       <div class="panel">
+        <div class="k">Contraseñas</div>
+        <div class="pwgrid">
+          <label class="field"><span>Contraseña de equipo · entra como Editor</span><input id="pwTeam" class="gin" autocomplete="off" placeholder="Ej: wax2026"></label>
+          <label class="field"><span>Contraseña de admin · entra como Admin</span><input id="pwAdmin" class="gin" autocomplete="off" placeholder="Solo para ti"></label>
+        </div>
+        <div class="tools"><button class="btn" id="pwSave">Guardar contraseñas</button></div>
+        <p class="note">Si cambias una contraseña, quien ya había entrado sigue dentro con su permiso. Para echar a alguien, cámbiale el permiso aquí abajo.</p>
+      </div>
+      <div class="panel" style="margin-top:12px">
         <div class="k">Quién puede hacer qué</div>
         <div class="legend">
-          <div><b>Ver</b><span>Ve la lista, no toca nada</span></div>
-          <div><b>Puerta</b><span>Solo marca quién entra</span></div>
-          <div><b>Editor</b><span>Apunta, edita y borra gente</span></div>
-          <div><b>Admin</b><span>Todo, y da permisos</span></div>
+          <div><b>Sin contraseña</b><span>Solo ve la lista de nombres y quién ha entrado</span></div>
+          <div><b>Puerta</b><span>Marca entradas y usa el contador (se lo das tú aquí)</span></div>
+          <div><b>Editor</b><span>Con la de equipo: apunta, edita y borra gente</span></div>
+          <div><b>Admin</b><span>Con la de admin: todo, dinero y contraseñas</span></div>
         </div>
-        <label class="switch"><input type="checkbox" id="openView"><i></i><span>Cualquiera con el enlace puede <b>ver</b> la lista sin esperar a que le apruebes</span></label>
       </div>
       <div class="glist" id="teamList" style="margin-top:12px"></div>
-      <div class="panel" style="margin-top:12px">
-        <div class="k">Tu código de organizador</div>
-        <div class="code mono" id="adminCode">—</div>
-        <p class="note">Guárdalo y no se lo pases a nadie. Si abres el enlace en otro dispositivo tuyo, o borras el navegador, pulsa «Tengo código de organizador», mételo y serás admin al momento.</p>
-      </div>
     </section>
   </main>
 </div>
@@ -674,17 +689,19 @@ const FIREBASE_CONFIG = {
       replace(map) { guests = map; this.flush(); render(); }
     };
   }
-  // ---------- Permisos por dispositivo ----------
+  // ---------- Permisos ----------
+  // Sin contraseña: solo ve la lista de nombres (sin dinero). Contraseña de equipo: Editor. Contraseña de admin: Admin.
   const LEVEL = { blocked: 0, viewer: 1, door: 2, editor: 3, admin: 4 };
   const ROLES = [['blocked', 'Bloquear'], ['viewer', 'Ver'], ['door', 'Puerta'], ['editor', 'Editor'], ['admin', 'Admin']];
   const ROLE_TXT = { blocked: 'Bloqueado', viewer: 'Solo ver', door: 'Puerta', editor: 'Editor', admin: 'Admin' };
-  const perm = { local: true, role: null, openView: false, ready: false, exists: true };
-  let members = {}, adminCode = null;
-  const level = () => perm.local ? 9 : (LEVEL[perm.role] ?? -1);
+  const perm = { local: true, role: null, ready: false, exists: true };
+  let members = {}, pw = { team: '', admin: '' }, gateState = null;
+  const level = () => perm.local ? 9 : perm.role ? (LEVEL[perm.role] ?? 1) : 1;
   const can = a => perm.local || ({
-    view: level() >= 1 || (perm.openView && perm.role !== 'blocked'),
+    view: perm.role !== 'blocked',
     door: level() >= 2, edit: level() >= 3, admin: level() >= 4
   })[a];
+  const viewKey = () => 'wf3_view_' + (store && store.key);
   function deviceLabel() {
     const u = navigator.userAgent;
     const os = /iPhone/.test(u) ? 'iPhone'
@@ -695,11 +712,14 @@ const FIREBASE_CONFIG = {
       : /FxiOS|Firefox\//.test(u) ? 'Firefox' : /Safari\//.test(u) ? 'Safari' : 'Navegador';
     return (os === 'K' ? 'Android' : os) + ' · ' + br;
   }
+  // Lo que ve alguien sin contraseña: solo nombre, si ha entrado y el orden de alta
+  const pub = g => ({ name: g.name, entered: !!g.entered, createdAt: g.createdAt || 0 });
+  const validPw = s => typeof s === 'string' && s.length >= 4 && !/[.#$\[\]\/]/.test(s);
 
-  // Modo nube: Firebase. Cada dispositivo tiene un ID fijo (acceso anónimo) y un rol que da el admin.
+  // Modo nube: Firebase. Cada dispositivo tiene un ID fijo (acceso anónimo); su permiso sale de la contraseña que mete.
   function CloudStore(key) {
     const CACHE = 'wf3_cache_' + key, E = 'events/' + key;
-    let db, gRef = null, mRef = null, cRef = null, uid = null, cb = () => {};
+    let db, gRef = null, pRef = null, mRef = null, cRef = null, uid = null, cb = () => {}, pubSent = null;
     const st = {
       mode: 'cloud', key,
       get uid() { return uid; },
@@ -717,99 +737,158 @@ const FIREBASE_CONFIG = {
         firebase.auth().signInAnonymously().catch(e => { console.error(e); setSync('off', 'Falta activar el acceso anónimo'); });
       },
       async join() {
-        const name = await askName();
         const owner = (await db.ref(E + '/owner').get()).val();
-        const info = { name, device: deviceLabel(), lastSeen: firebase.database.ServerValue.TIMESTAMP };
+        const info = { name: lsGet('wf3_name') || 'Sin nombre', device: deviceLabel(), lastSeen: firebase.database.ServerValue.TIMESTAMP };
         if (!owner) {
           if (lsGet('wf3_creating') !== key) { perm.exists = false; perm.ready = true; applyPerm(); return; }
+          const name = (prompt('Tu nombre (saldrá como quien apunta a la gente):') || 'Organizador').trim() || 'Organizador';
+          lsSet('wf3_name', name); info.name = name;
           await db.ref(E + '/owner').set(uid);
-          adminCode = randKey(10);
-          await db.ref(E + '/members/' + uid).set({ info: { ...info, firstSeen: Date.now() }, role: 'admin', claim: adminCode });
-          await db.ref(E + '/adminCodes/' + adminCode).set(true);
+          const code = randKey(10);
+          await db.ref(E + '/members/' + uid).set({ info: { ...info, firstSeen: Date.now() }, role: 'admin', claim: code });
+          await db.ref(E + '/adminCodes/' + code).set(true);
           try { localStorage.removeItem('wf3_creating'); } catch {}
-          setTimeout(() => alert(`Lista creada. Tu código de organizador es:\n\n${adminCode}\n\nGuárdalo: sirve para hacerte admin en otro dispositivo tuyo. También lo tienes en la pestaña Equipo.`), 400);
+          setTimeout(() => { setTab('team'); alert('Lista creada. Ahora pon en la pestaña Equipo la contraseña de equipo y la de admin.'); }, 600);
         } else {
           const me = (await db.ref(E + '/members/' + uid + '/info').get()).val();
-          await db.ref(E + '/members/' + uid + '/info').update(me ? info : { ...info, firstSeen: Date.now() });
+          await db.ref(E + '/members/' + uid + '/info').update(me ? { device: info.device, lastSeen: info.lastSeen, ...(lsGet('wf3_name') ? { name: info.name } : {}) } : { ...info, firstSeen: Date.now() });
         }
         db.ref(E + '/members/' + uid + '/role').on('value', s => { perm.role = s.val(); perm.ready = true; applyPerm(); });
-        db.ref(E + '/settings/openView').on('value', s => { perm.openView = s.val() === true; applyPerm(); });
       },
       sync() {
-        if (!db || !uid) return;
-        if (can('view') && !gRef) {
+        if (!db || !uid || !perm.ready) return;
+        const full = can('door');
+        // con contraseña: lista completa (y se mantiene al día la copia pública); sin contraseña: solo la copia pública
+        if (full && !gRef) {
+          if (pRef) { pRef.off(); pRef = null; }
           gRef = db.ref(E + '/guests'); let first = true;
           gRef.on('value', snap => {
             guests = snap.val() || {}; lsSet(CACHE, JSON.stringify(guests)); cb();
+            if (can('edit')) st.syncPublic();
             if (first && can('edit')) offerMigration(); first = false;
           }, () => { gRef = null; });
-        } else if (!can('view') && gRef) { gRef.off(); gRef = null; guests = {}; lsSet(CACHE, '{}'); cb(); }
+        } else if (!full && can('view') && !pRef) {
+          if (gRef) { gRef.off(); gRef = null; }
+          pRef = db.ref(E + '/public');
+          pRef.on('value', snap => {
+            const p = snap.val() || {}; guests = {};
+            Object.entries(p).forEach(([id, x]) => guests[id] = { id, name: x.name, entered: !!x.entered, createdAt: x.createdAt || 0, method: 'Colaboración', paid: 0 });
+            lsSet(CACHE, JSON.stringify(guests)); cb();
+          }, () => { pRef = null; });
+        } else if (!can('view')) {
+          if (gRef) { gRef.off(); gRef = null; } if (pRef) { pRef.off(); pRef = null; }
+          guests = {}; lsSet(CACHE, '{}'); cb();
+        }
         if (can('admin') && !mRef) {
           mRef = db.ref(E + '/members');
           mRef.on('value', s => { members = s.val() || {}; renderTeam(); }, () => { mRef = null; });
-          db.ref(E + '/adminCodes').get().then(s => { adminCode = Object.keys(s.val() || {})[0] || adminCode; renderTeam(); }).catch(() => {});
+          Promise.all([db.ref(E + '/editorCodes').get(), db.ref(E + '/adminCodes').get()]).then(([a, b]) => {
+            pw.team = Object.keys(a.val() || {})[0] || ''; pw.admin = Object.keys(b.val() || {})[0] || ''; renderTeam(true);
+          }).catch(() => {});
         } else if (!can('admin') && mRef) { mRef.off(); mRef = null; members = {}; }
-        // el contador vive en "settings" (ya lo permiten las reglas: lo ve cualquiera, lo cambia un admin)
         if (can('view') && !cRef) {
-          cRef = db.ref(E + '/settings/counter');
+          cRef = db.ref(E + '/counter');
           cRef.on('value', s => { counter = { in: 0, total: CAP, ...(s.val() || {}) }; lsSet(CACHE + '_c', JSON.stringify(counter)); renderCounter(); }, () => { cRef = null; });
-        } else if (!can('view') && cRef) { cRef.off(); cRef = null; }
+        }
+      },
+      // copia pública (nombres y entradas) siempre al día con la lista completa
+      async syncPublic() {
+        const want = {}; Object.values(guests).forEach(g => { if (g && g.id) want[g.id] = pub(g); });
+        const s = JSON.stringify(want);
+        if (pubSent === null) { try { pubSent = JSON.stringify((await db.ref(E + '/public').get()).val() || {}); } catch { return; } }
+        if (s === pubSent) return;
+        pubSent = s; db.ref(E + '/public').set(want).catch(() => { pubSent = null; });
       },
       counterAdd(d) {
         if (!cRef) return toast('Sin conexión');
         counter.in = Math.max(0, (counter.in || 0) + d); renderCounter();
-        st.w(db.ref(E + '/settings/counter/in').transaction(v => Math.max(0, (v || 0) + d)));
+        st.w(db.ref(E + '/counter/in').transaction(v => Math.max(0, (v || 0) + d)));
       },
-      counterSet(field, v) { if (!cRef) return toast('Sin conexión'); counter[field] = v; renderCounter(); st.w(db.ref(E + '/settings/counter/' + field).set(v)); },
+      counterSet(field, v) { if (!cRef) return toast('Sin conexión'); counter[field] = v; renderCounter(); st.w(db.ref(E + '/counter/' + field).set(v)); },
       w(p) { return p.catch(e => { console.error(e); toast('No tienes permiso para eso'); }); },
-      put(g) { if (!gRef) return toast('Sin conexión'); guests[g.id] = g; render(); st.w(db.ref(E + '/guests/' + g.id).set(g)); },
-      del(id) { if (!gRef) return toast('Sin conexión'); delete guests[id]; render(); st.w(db.ref(E + '/guests/' + id).remove()); },
-      replace(map) { if (!gRef) return toast('Sin conexión'); guests = map; render(); st.w(db.ref(E + '/guests').set(map)); },
+      put(g) { if (!gRef) return toast('Sin conexión'); guests[g.id] = g; render(); st.w(db.ref(E).update({ ['guests/' + g.id]: g, ['public/' + g.id]: pub(g) })); },
+      del(id) { if (!gRef) return toast('Sin conexión'); delete guests[id]; render(); st.w(db.ref(E).update({ ['guests/' + id]: null, ['public/' + id]: null })); },
+      replace(map) {
+        if (!gRef) return toast('Sin conexión');
+        const p = {}; Object.values(map).forEach(g => p[g.id] = pub(g));
+        guests = map; render(); st.w(db.ref(E).update({ guests: map, public: p }));
+      },
       setRole(id, r) { st.w(db.ref(E + '/members/' + id + '/role').set(r)); },
-      setOpenView(v) { st.w(db.ref(E + '/settings/openView').set(v)); },
-      claim(code) {
-        const info = { name: lsGet('wf3_name') || 'Organizador', device: deviceLabel(), lastSeen: Date.now() };
-        return db.ref(E + '/members/' + uid).set({ info, role: 'admin', claim: code });
+      // mete una contraseña: prueba admin y luego equipo; el servidor decide si vale
+      async enterPassword(name, pass) {
+        const info = { name, device: deviceLabel(), lastSeen: Date.now() };
+        for (const role of ['admin', 'editor']) {
+          try { await db.ref(E + '/members/' + uid).set({ info, role, claim: pass }); return role; } catch {}
+        }
+        throw new Error('bad-password');
+      },
+      async setPasswords(team, admin) {
+        await db.ref(E + '/editorCodes').set({ [team]: true });
+        await db.ref(E + '/adminCodes').set({ [admin]: true });
+        pw = { team, admin };
       }
     };
     return st;
   }
 
   function applyPerm() {
+    const full = can('door');
     document.body.classList.toggle('no-edit', !can('edit'));
     document.body.classList.toggle('no-door', !can('door'));
+    document.body.classList.toggle('nomoney', !full);
     const team = !perm.local && can('admin');
     $$('[data-tab="team"]').forEach(b => b.hidden = !team);
-    if (!team && tab === 'team') setTab('list');
-    $('#roleTag').textContent = perm.local ? '' : (ROLE_TXT[perm.role] || (perm.ready ? 'Pendiente' : ''));
+    $$('[data-tab="money"]').forEach(b => b.hidden = !full);
+    if ((!team && tab === 'team') || (!full && tab === 'money')) setTab('list');
+    $('#keyBtn').hidden = perm.local || !perm.ready || can('admin');
+    $('#roleTag').textContent = perm.local ? '' : perm.ready ? (ROLE_TXT[perm.role] || 'Solo ver') : '';
     if (store && store.sync) store.sync();
     if (!perm.local && perm.ready) {
       if (!perm.exists) gate('notfound');
       else if (perm.role === 'blocked') gate('blocked');
-      else if (!can('view')) gate('waiting');
-      else gate(null);
+      else if (!perm.role && !lsGet(viewKey())) gate('enter');
+      else if (gateState !== 'enter' || perm.role) gate(null);
     }
     render(); renderCounter();
   }
 
-  function gate(s, resolveName) {
+  function gate(s, force) {
     const g = $('#gate'), box = $('#gateBox');
+    if (s === gateState && !force) return;
+    gateState = s;
     if (!s) { g.classList.remove('on'); return; }
     const id = store && store.uid ? store.uid.slice(-6).toUpperCase() : '';
     const T = {
+      enter: `<h2>Wax Fest III</h2><p>Con la contraseña del equipo puedes apuntar gente. Sin contraseña solo ves la lista.</p>
+        <form class="acts" id="enterForm">
+          <input class="gin" id="gName" maxlength="40" placeholder="Tu nombre" autocomplete="name" value="${esc(lsGet('wf3_name') || '')}">
+          <input class="gin" id="gPass" type="password" placeholder="Contraseña" autocomplete="current-password">
+          <p class="gerr" id="gErr"></p>
+          <button class="btn" id="gGo">Entrar</button>
+          ${perm.role ? '<button type="button" class="btn ghost" data-g="close">Cancelar</button>' : '<button type="button" class="btn ghost" data-g="view">Ver la lista sin contraseña</button>'}
+        </form>`,
       nokey: `<h2>Wax Fest III</h2><p>Esta lista es privada. Ábrela con el enlace que te han pasado.</p><div class="acts"><button class="btn" data-g="new">Soy el organizador · crear lista</button><button class="btn ghost" data-g="paste">Pegar enlace</button></div>`,
       notfound: `<h2>No existe</h2><p>Este enlace no corresponde a ninguna lista. Pide el enlace correcto al organizador.</p><div class="acts"><button class="btn ghost" data-g="paste">Pegar otro enlace</button></div>`,
-      name: `<h2>¿Quién<br>eres?</h2><p>Tu nombre le llega al organizador para darte acceso.</p><form class="acts" id="nameForm"><input class="gin" id="gName" required maxlength="40" placeholder="Tu nombre" autocomplete="name"><button class="btn">Continuar</button></form>`,
-      waiting: `<h2>Esperando<br>permiso</h2><p>El organizador tiene que aprobar este dispositivo.</p><div class="devcard"><b>${esc(lsGet('wf3_name') || '')}</b><span>${esc(deviceLabel())} · ID ${id}</span></div><div class="acts"><button class="btn ghost" data-g="code">Tengo código de organizador</button></div>`,
       blocked: `<h2>Sin<br>acceso</h2><p>El organizador ha bloqueado este dispositivo.</p><div class="devcard"><span>${esc(deviceLabel())} · ID ${id}</span></div>`
     };
     box.innerHTML = T[s]; g.classList.add('on');
-    if (s === 'name') {
-      setTimeout(() => $('#gName').focus(), 100);
-      $('#nameForm').onsubmit = e => { e.preventDefault(); const v = $('#gName').value.trim(); if (!v) return; lsSet('wf3_name', v); gate(null); resolveName(v); };
+    if (s === 'enter') {
+      setTimeout(() => (lsGet('wf3_name') ? $('#gPass') : $('#gName')).focus(), 100);
+      $('#enterForm').onsubmit = async e => {
+        e.preventDefault();
+        const name = $('#gName').value.trim().replace(/\s+/g, ' '), pass = $('#gPass').value;
+        if (!pass) { $('#gErr').textContent = 'Escribe la contraseña, o pulsa «Ver la lista sin contraseña».'; return; }
+        if (!name) { $('#gErr').textContent = 'Pon tu nombre: queda registrado quién apunta a cada persona.'; return; }
+        if (!validPw(pass)) { $('#gErr').textContent = 'Contraseña incorrecta.'; return; }
+        $('#gGo').disabled = true; $('#gErr').textContent = '';
+        try {
+          lsSet('wf3_name', name);
+          const role = await store.enterPassword(name, pass);
+          gate(null); toast(role === 'admin' ? `Hola ${name} · entras como Admin` : `Hola ${name} · entras como Editor`);
+        } catch { $('#gErr').textContent = 'Contraseña incorrecta.'; $('#gGo').disabled = false; }
+      };
     }
   }
-  const askName = () => new Promise(res => { const n = lsGet('wf3_name'); if (n) return res(n); gate('name', res); });
   $('#gate').addEventListener('click', async e => {
     const b = e.target.closest('[data-g]'); if (!b) return;
     const a = b.dataset.g;
@@ -819,37 +898,39 @@ const FIREBASE_CONFIG = {
       const m = v.match(/k=([A-Za-z0-9]{16,})/); if (!m) return alert('Ese enlace no tiene la clave de la lista.');
       lsSet('wf3_key', m[1]); location.hash = 'k=' + m[1]; location.reload();
     }
-    if (a === 'code') {
-      const c = (prompt('Código de organizador') || '').trim(); if (!c) return;
-      try { await store.claim(c); toast('Ya eres admin'); } catch { alert('Código incorrecto.'); }
-    }
+    if (a === 'view') { lsSet(viewKey(), '1'); gate(null); applyPerm(); }
+    if (a === 'close') gate(null);
   });
+  $('#keyBtn').onclick = () => gate('enter', true);
 
   // ---------- Pestaña Equipo ----------
   const ago = t => { if (!t) return ''; const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'ahora' : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : `hace ${Math.round(m / 1440)} d`; };
-  function renderTeam() {
+  function renderTeam(fillPw) {
     if (perm.local || !can('admin')) return;
     const me = store.uid;
     const arr = Object.entries(members).map(([id, m]) => ({ id, ...(m.info || {}), role: m.role || null }));
-    const pend = arr.filter(m => !m.role).length;
-    $$('.badge').forEach(b => { b.textContent = pend || ''; b.hidden = !pend; });
-    arr.sort((a, b) => (!!a.role - !!b.role) || (b.lastSeen || 0) - (a.lastSeen || 0));
+    $$('.badge').forEach(b => { b.hidden = true; });
+    arr.sort((a, b) => (LEVEL[b.role || 'viewer'] - LEVEL[a.role || 'viewer']) || (b.lastSeen || 0) - (a.lastSeen || 0));
     $('#teamList').innerHTML = arr.map(m => `
-      <div class="mem ${m.role ? '' : 'pend'}" data-uid="${m.id}">
+      <div class="mem" data-uid="${m.id}">
         <div class="av">${esc(initials(m.name || '?'))}</div>
-        <div class="nm"><b>${esc(m.name || 'Sin nombre')}${m.id === me ? ' <em>(tú)</em>' : ''}${m.role ? '' : '<span class="new">NUEVO</span>'}</b><span>${esc(m.device || '')} · ID ${m.id.slice(-6).toUpperCase()} · ${ago(m.lastSeen)}</span></div>
-        <div class="roles">${m.id === me ? `<button class="on">${ROLE_TXT[m.role] || ''}</button>` : ROLES.map(([r, t]) => `<button class="${m.role === r ? 'on' : ''} ${r === 'blocked' ? 'rb' : ''}" data-role="${r}">${t}</button>`).join('')}</div>
+        <div class="nm"><b>${esc(m.name || 'Sin nombre')}${m.id === me ? ' <em>(tú)</em>' : ''}</b><span>${esc(m.device || '')} · ID ${m.id.slice(-6).toUpperCase()} · ${ago(m.lastSeen)}</span></div>
+        <div class="roles">${m.id === me ? `<button class="on">${ROLE_TXT[m.role] || 'Solo ver'}</button>` : ROLES.map(([r, t]) => `<button class="${(m.role || 'viewer') === r ? 'on' : ''} ${r === 'blocked' ? 'rb' : ''}" data-role="${r}">${t}</button>`).join('')}</div>
       </div>`).join('') || '<div class="empty"><b>Nadie todavía</b><span>Comparte el enlace y aparecerán aquí</span></div>';
-    $('#openView').checked = perm.openView;
-    $('#adminCode').textContent = adminCode || '—';
+    if (fillPw) { $('#pwTeam').value = pw.team; $('#pwAdmin').value = pw.admin; }
   }
   $('#teamList').addEventListener('click', e => {
     const b = e.target.closest('[data-role]'); if (!b) return;
     const id = b.closest('[data-uid]').dataset.uid;
-    if (b.dataset.role === 'admin' && !confirm('Un admin puede dar y quitar permisos a todos. ¿Seguro?')) return;
+    if (b.dataset.role === 'admin' && !confirm('Un admin ve el dinero y puede cambiar las contraseñas. ¿Seguro?')) return;
     store.setRole(id, b.dataset.role);
   });
-  $('#openView').onchange = e => store.setOpenView(e.target.checked);
+  $('#pwSave').onclick = async () => {
+    const t = $('#pwTeam').value.trim(), a = $('#pwAdmin').value.trim();
+    if (!validPw(t) || !validPw(a)) return toast('Mínimo 4 caracteres, sin . # $ [ ] /');
+    if (t === a) return toast('Las dos contraseñas tienen que ser distintas');
+    try { await store.setPasswords(t, a); toast('Contraseñas guardadas'); } catch (e) { console.error(e); toast('No se han podido guardar'); }
+  };
   function offerMigration() {
     if (Object.keys(guests).length) return;
     let old = null;
@@ -884,7 +965,7 @@ const FIREBASE_CONFIG = {
       const key = getKey();
       if (!key) { perm.local = false; gate('nokey'); return; }
       store = CloudStore(key);
-      $('#modeNote').innerHTML = 'Lista <b>compartida en directo</b>. Quien abra el enlace aparece en <b>Equipo</b> y tú decides qué puede hacer.';
+      $('#modeNote').innerHTML = 'Lista <b>compartida en directo</b>. Sin contraseña solo se ve la lista de nombres; con la de equipo se apunta gente; con la de admin se ve todo.';
     } else {
       store = LocalStore();
       $('#modeNote').innerHTML = 'Ahora mismo la lista se guarda <b>solo en este dispositivo</b>. Descarga una copia de vez en cuando.';
@@ -1137,20 +1218,20 @@ const FIREBASE_CONFIG = {
     $('#cLeft').classList.toggle('zero', !left);
     if (lastIn !== null && n !== lastIn) ['#ctIn', '#cLeft'].forEach(s => { const el = $(s); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); });
     lastIn = n;
-    // solo un admin puede pulsar (así funciona con las reglas que ya hay en Firebase); el resto lo ve en directo
-    const canCount = can('admin');
+    // pueden pulsar Puerta, Editor y Admin; "Ver" solo lo mira en directo
+    const canCount = can('door');
     $('#cPlus').disabled = !canCount; $('#cMinus').disabled = !canCount || !n;
     $('#cHint').hidden = canCount;
     $$('[data-admin]').forEach(b => b.hidden = !can('admin'));
   }
   $('#cPlus').onclick = () => {
-    if (!can('admin')) return toast('Solo un admin puede usar el contador');
+    if (!can('door')) return toast('Necesitas permiso de Puerta para usar el contador');
     const total = counter.total || CAP;
     if ((counter.in || 0) >= total && !confirm('Ya está completo. ¿Sumar igualmente?')) return;
     store.counterAdd(1); if (navigator.vibrate) navigator.vibrate(25);
     const b = $('#cPlus'); b.classList.remove('hit'); void b.offsetWidth; b.classList.add('hit');
   };
-  $('#cMinus').onclick = () => { if (can('admin') && counter.in > 0) { store.counterAdd(-1); toast('Restada una persona'); } };
+  $('#cMinus').onclick = () => { if (can('door') && counter.in > 0) { store.counterAdd(-1); toast('Restada una persona'); } };
   $('#cTotalBtn').onclick = () => {
     const v = parseInt(prompt('¿Cuántas entradas hay en total?', counter.total || CAP), 10);
     if (v > 0) store.counterSet('total', v);
