@@ -274,6 +274,7 @@ body.nomoney .kpis{grid-template-columns:repeat(3,1fr)}
 @media (max-width:820px){.pwgrid{grid-template-columns:1fr}}
 
 .g.ro .more{visibility:hidden}
+#fTicket small{font-weight:500;opacity:.7}
 
 /* ---------- CONTADOR ---------- */
 .counter{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;border:1px solid var(--line);border-radius:30px;padding:34px 28px;background:radial-gradient(ellipse at center,rgba(255,255,255,.06),transparent 70%),var(--card)}
@@ -506,7 +507,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
             <div><span>Sala · 50%</span><b id="mSala">0€</b></div>
             <div><span>Reparto · 50%</span><b id="mRest">0€</b></div>
           </div>
-          <p class="note">La mitad para la sala cubre las consumiciones (cerveza o tinto de verano). La otra mitad se divide entre 7.</p>
+          <p class="note" id="mLocal">La mitad para la sala cubre las consumiciones (cerveza o tinto de verano). La otra mitad se divide entre 7.</p>
         </div>
         <div class="panel each">
           <div class="k">Le toca a cada uno</div>
@@ -580,6 +581,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
   <form id="shForm" autocomplete="off">
     <div class="field"><label>Nombre y apellido</label><input id="fName" required placeholder="Ej: Pablo García" enterkeyhint="next"></div>
     <div class="field"><label>Instagram o teléfono</label><input id="fContact" placeholder="@usuario" enterkeyhint="done"></div>
+    <div class="field"><label>Tipo de entrada</label><div class="chips" id="fTicket"><button type="button" data-t="normal">General · 8€</button><button type="button" data-t="local">Local · 4€ <small>(para la sala)</small></button></div></div>
     <div class="field"><label>Cómo ha pagado</label><div class="chips" id="fMethod"></div></div>
     <div class="field" id="amtField"><label>Importe</label><div class="amtrow"><div class="chips" id="fAmtChips"></div><input id="fPaid" type="number" inputmode="decimal" min="0" step="0.5"></div></div>
     <div class="field"><label>Nota</label><input id="fNote" placeholder="Opcional"></div>
@@ -619,6 +621,10 @@ const FIREBASE_CONFIG = {
 
 (() => {
   const PRICE = 8, CAP = 300, SALA_PCT = 0.5, SPLIT = 7;
+  // Entrada "Local" a 4€: ese dinero va entero a la sala (no entra en el 50/50 ni en el reparto)
+  const LOCAL_PRICE = 4;
+  const isLocal = g => g && g.ticket === 'local';
+  const priceOf = g => isLocal(g) ? LOCAL_PRICE : PRICE;
   const METHODS = ['Bizum', 'Efectivo', 'Transferencia', 'Colaboración', 'Pendiente'];
   // Colaboración / featuring: no paga entrada. 'Invitación' era el nombre antiguo y se trata igual.
   const FREE = m => m === 'Colaboración' || m === 'Invitación';
@@ -651,7 +657,7 @@ const FIREBASE_CONFIG = {
   const byName = g => g.addedBy && g.addedBy.name ? g.addedBy.name : 'Sin registrar';
   const byKey = g => g.addedBy && g.addedBy.uid ? g.addedBy.uid : '_none';
   const fmtWhen = t => t ? new Date(t).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
-  const owes = g =>g.method === 'Pendiente' || (!FREE(g.method) && (+g.paid || 0) < PRICE);
+  const owes = g =>g.method === 'Pendiente' || (!FREE(g.method) && (+g.paid || 0) < priceOf(g));
   const list = () => Object.values(guests).sort((a, b) => a.createdAt - b.createdAt);
   const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
@@ -994,7 +1000,7 @@ const FIREBASE_CONFIG = {
     dots: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>'
   };
   const amtPill = g => FREE(g.method) ? '<span class="amt inv">Colab / Feat.</span>'
-    : owes(g) ? `<span class="amt due">${g.paid ? 'Faltan ' + eur(PRICE - g.paid) : 'Debe ' + eur(PRICE)}</span>`
+    : owes(g) ? `<span class="amt due">${g.paid ? 'Faltan ' + eur(priceOf(g) - g.paid) : 'Debe ' + eur(priceOf(g))}</span>`
     : `<span class="amt">${eur(g.paid)}</span>`;
 
   function render() {
@@ -1028,7 +1034,7 @@ const FIREBASE_CONFIG = {
     $('#list').innerHTML = rows.length ? rows.map(g => `
       <div class="g ${g.entered ? 'in' : ''} ${g.id === fresh ? 'fresh' : ''} ${canEditG(g) ? '' : 'ro'}" data-id="${g.id}">
         <div class="av">${esc(initials(g.name))}<span class="num">${num[g.id]}</span></div>
-        <div class="nm" data-act="edit"><b>${esc(g.name)}</b><span>${[`<i class="by">por ${esc(byName(g))}</i>`].concat([g.contact, mChip(mLabel(g.method)), g.note].filter(Boolean).map(esc)).join(' · ')}</span></div>
+        <div class="nm" data-act="edit"><b>${esc(g.name)}</b><span>${[`<i class="by">por ${esc(byName(g))}</i>`].concat([isLocal(g) ? 'Local 4€' : '', g.contact, mChip(mLabel(g.method)), g.note].filter(Boolean).map(esc)).join(' · ')}</span></div>
         ${amtPill(g)}
         <div style="display:flex;gap:6px;align-items:center"><button class="more" data-act="edit" aria-label="Editar">${IC.dots}</button><button class="tick" data-act="toggle" aria-label="Marcar entrada">${IC.check}</button></div>
       </div>`).join('')
@@ -1048,15 +1054,20 @@ const FIREBASE_CONFIG = {
       : `<div class="empty"><b>${dq ? 'No está en la lista' : N ? 'Han entrado todos' : 'Lista vacía'}</b><span>${dq ? 'Revisa cómo se escribe o búscalo por su @' : ''}</span></div>`;
 
     // dinero
-    const sala = money * SALA_PCT, rest = money - sala, each = rest / SPLIT;
+    const localG = G.filter(isLocal), localMoney = localG.reduce((s, g) => s + (+g.paid || 0), 0);
+    const normalMoney = money - localMoney;
+    const sala = normalMoney * SALA_PCT + localMoney, rest = normalMoney - normalMoney * SALA_PCT, each = rest / SPLIT;
     $('#mTotal').textContent = eur(money); $('#mSala').textContent = eur(sala); $('#mRest').textContent = eur(rest);
+    $('#mLocal').innerHTML = localG.length
+      ? `Entradas de local (${eur(LOCAL_PRICE)}): <b>${localG.length}</b> · <b>${eur(localMoney)}</b> que van <b>enteros a la sala</b>. Entradas normales: ${eur(normalMoney)}, la mitad para la sala y la otra mitad entre ${SPLIT}.`
+      : `La mitad de las entradas normales es para la sala (cubre las consumiciones). La otra mitad se divide entre ${SPLIT}. Las entradas de local (${eur(LOCAL_PRICE)}) van enteras a la sala.`;
     $('#mEach').textContent = eur(each); $('#mEachD').textContent = `${eur(rest)} ÷ ${SPLIT} personas`;
     $('#seven').innerHTML = Array.from({ length: SPLIT }, (_, i) => `<div><span>Nº ${i + 1}</span><b>${eur(each)}</b></div>`).join('');
     const byM = {}; G.forEach(g => { const mm = mLabel(g.method); byM[mm] = byM[mm] || { n: 0, s: 0 }; byM[mm].n++; byM[mm].s += +g.paid || 0; });
     $('#mMethods').innerHTML = Object.keys(byM).length ? METHODS.filter(m => byM[m]).map(m => `<div class="rowkv"><span>${mChip(m)} · ${byM[m].n}</span><b>${eur(byM[m].s)}</b></div>`).join('') : '<p class="note">Sin pagos todavía.</p>';
     const byP = {}; G.forEach(g => { const k = byKey(g); byP[k] = byP[k] || { name: byName(g), n: 0, s: 0, due: 0 }; byP[k].n++; byP[k].s += +g.paid || 0; if (owes(g)) byP[k].due++; });
     $('#mBy').innerHTML = Object.keys(byP).length ? Object.entries(byP).sort((a, b) => b[1].s - a[1].s).map(([k, p]) => `<div class="rowkv byrow" data-by="${esc(k)}"><span><b class="byn">${esc(p.name)}</b> · ${p.n} persona${p.n > 1 ? 's' : ''}${p.due ? ` · <em class="byd">${p.due} sin cobrar</em>` : ''}</span><b>${eur(p.s)}</b></div>`).join('') : '<p class="note">Nadie apuntado todavía.</p>';
-    $('#mDue').innerHTML =due.length ? due.map(g => `<div class="rowkv due"><span>${esc(g.name)}</span><b>${eur(PRICE - (+g.paid || 0))}</b></div>`).join('') : '<p class="note">Nadie debe nada.</p>';
+    $('#mDue').innerHTML =due.length ? due.map(g => `<div class="rowkv due"><span>${esc(g.name)}</span><b>${eur(priceOf(g) - (+g.paid || 0))}</b></div>`).join('') : '<p class="note">Nadie debe nada.</p>';
   }
 
   /* ---------------- pestañas ---------------- */
@@ -1101,10 +1112,19 @@ const FIREBASE_CONFIG = {
     method = m; $$('#fMethod button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
     const noAmt = FREE(m) || m === 'Pendiente';
     $('#amtField').style.display = noAmt ? 'none' : '';
-    if (noAmt) $('#fPaid').value = 0; else if (+$('#fPaid').value === 0) $('#fPaid').value = PRICE;
+    if (noAmt) $('#fPaid').value = 0; else if (+$('#fPaid').value === 0) $('#fPaid').value = ticket === 'local' ? LOCAL_PRICE : PRICE;
     syncAmt();
   }
-  const syncAmt = () => $$('#fAmtChips button').forEach(b => b.classList.toggle('on', +b.dataset.v === +$('#fPaid').value));
+  let ticket = 'normal';
+  function setTicket(t) {
+    const prevPrice = ticket === 'local' ? LOCAL_PRICE : PRICE, newPrice = t === 'local' ? LOCAL_PRICE : PRICE;
+    ticket = t; $$('#fTicket button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+    // si el importe era el precio de la otra entrada, se cambia solo
+    if (!FREE(method) && method !== 'Pendiente' && (+$('#fPaid').value === prevPrice || !$('#fPaid').value)) $('#fPaid').value = newPrice;
+    syncAmt();
+  }
+  $('#fTicket').onclick = e => { const b = e.target.closest('[data-t]'); if (b) setTicket(b.dataset.t); };
+  const syncAmt = () =>$$('#fAmtChips button').forEach(b => b.classList.toggle('on', +b.dataset.v === +$('#fPaid').value));
   $('#fMethod').onclick = e => { const b = e.target.closest('button'); if (b) setMethod(b.dataset.m); };
   $('#fAmtChips').onclick = e => { const b = e.target.closest('button'); if (b) { $('#fPaid').value = b.dataset.v; syncAmt(); } };
   $('#fPaid').oninput = syncAmt;
@@ -1119,6 +1139,8 @@ const FIREBASE_CONFIG = {
     $('#fName').value = editing ? editing.name : '';
     $('#fContact').value = editing ? editing.contact || '' : '';
     $('#fNote').value = editing ? editing.note || '' : '';
+    ticket = editing && isLocal(editing) ? 'local' : 'normal';
+    $$('#fTicket button').forEach(b => b.classList.toggle('on', b.dataset.t === ticket));
     $('#fPaid').value = editing ? editing.paid : PRICE;
     setMethod(editing ? mLabel(editing.method) : 'Bizum');
     if (editing) $('#fPaid').value = editing.paid, syncAmt();
@@ -1170,13 +1192,13 @@ const FIREBASE_CONFIG = {
     if (!name) return;
     const paid = (FREE(method) || method === 'Pendiente') ? 0 : Math.max(0, +$('#fPaid').value || 0);
     if (editing) {
-      store.put({ ...editing, name, contact: $('#fContact').value.trim(), note: $('#fNote').value.trim(), method, paid, editedBy: me(), editedAt: Date.now() });
+      store.put({ ...editing, name, contact: $('#fContact').value.trim(), note: $('#fNote').value.trim(), method, paid, ticket, editedBy: me(), editedAt: Date.now() });
       closeSheet(); toast('Cambios guardados'); return;
     }
     const dup = list().find(g => norm(g.name) === norm(name));
     if (dup && !confirm(`“${dup.name}” ya está en la lista. ¿Añadir otra vez?`)) return;
     if (list().length >= CAP && !confirm('Ya hay 300 personas (aforo máximo). ¿Añadir igualmente?')) return;
-    const g = { id: uid(), name, contact: $('#fContact').value.trim(), note: $('#fNote').value.trim(), method, paid, entered: false, enteredAt: null, createdAt: Date.now(), addedBy: me() };
+    const g = { id: uid(), name, contact: $('#fContact').value.trim(), note: $('#fNote').value.trim(), method, paid, ticket, entered: false, enteredAt: null, createdAt: Date.now(), addedBy: me() };
     fresh = g.id; setTimeout(() => { if (fresh === g.id) fresh = null; }, 1200);
     store.put(g);
     closeSheet(); toast(`${name} apuntado · nº ${list().length}`);
@@ -1196,8 +1218,8 @@ const FIREBASE_CONFIG = {
   $('#bJson').onclick = () => { download(`waxfest3_lista_${stamp()}.json`, JSON.stringify({ guests: list(), savedAt: Date.now() }, null, 2), 'application/json'); toast('Copia descargada'); };
   $('#bCsv').onclick = () => {
     const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const rows = [['Nº', 'Nombre', 'Contacto', 'Pagado', 'Método', 'Nota', 'Apuntado por', 'Fecha alta', 'Dentro', 'Entrada marcada por'].join(';')]
-      .concat(list().map((g, i) => [i + 1, q(g.name), q(g.contact), String(g.paid).replace('.', ','), q(g.method), q(g.note), q(byName(g)), q(fmtWhen(g.createdAt)), g.entered ? 'SÍ' : 'NO', q(g.enteredBy ? g.enteredBy.name : '')].join(';')));
+    const rows = [['Nº', 'Nombre', 'Contacto', 'Entrada', 'Pagado', 'Método', 'Nota', 'Apuntado por', 'Fecha alta', 'Dentro', 'Entrada marcada por'].join(';')]
+      .concat(list().map((g, i) => [i + 1, q(g.name), q(g.contact), isLocal(g) ? 'Local 4€ (sala)' : 'General 8€', String(g.paid).replace('.', ','), q(mLabel(g.method)), q(g.note), q(byName(g)), q(fmtWhen(g.createdAt)), g.entered ? 'SÍ' : 'NO', q(g.enteredBy ? g.enteredBy.name : '')].join(';')));
     download(`waxfest3_lista_${stamp()}.csv`, '﻿' + rows.join('\r\n'), 'text/csv;charset=utf-8');
   };
   $('#bPrint').onclick = () => { setTab('list'); setTimeout(() => window.print(), 100); };
