@@ -345,6 +345,18 @@ body.nomoney .kpis{grid-template-columns:repeat(3,1fr)}
 .kph img{width:100%;height:100%;object-fit:cover;display:block}
 .kph span{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:700;background:rgba(0,0,0,.55);color:#fff;padding:3px 8px;border-radius:999px}
 .kph .kdel{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.6);margin:0}
+.ksearch{position:relative}
+.ksearch .gin{width:100%}
+.ksugg{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;background:var(--sheet);border:1px solid var(--line2);border-radius:14px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.6);max-height:340px;overflow-y:auto}
+.ksugg button{display:flex;gap:12px;align-items:baseline;width:100%;text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+.ksugg button:last-child{border-bottom:0}
+.ksugg button:hover{background:var(--card2)}
+.ksugg b{font-family:var(--mono);font-size:13px;color:var(--ok);min-width:56px}
+.ksugg span{font-size:14px;font-weight:600}
+.ksugg em{font-style:normal;color:var(--dim);font-weight:500}
+.ksugg .none{padding:12px 14px;font-size:13px;color:var(--dim)}
+.kpick{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 9px;border-radius:999px;background:var(--ok);color:var(--onok)}
+.kcode{display:inline-block;font-family:var(--mono);font-style:normal;font-size:.75em;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(var(--okrgb),.16);color:var(--ok);border:1px solid rgba(var(--okrgb),.4);vertical-align:middle}
 .kpendbox{margin-top:6px;padding:4px 14px 14px;border:1px dashed rgba(var(--okrgb),.45);border-radius:18px;background:rgba(var(--okrgb),.05)}
 .kph.pend img{filter:saturate(.85)}
 .kpa{position:absolute;left:8px;right:8px;bottom:8px;display:flex;gap:6px}
@@ -686,7 +698,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
           <div class="k">Pide tu canción</div>
           <div class="kgrid">
             <input class="gin" id="kName" maxlength="40" placeholder="Tu nombre (como saldrás en pantalla)" required>
-            <input class="gin" id="kSong" maxlength="100" placeholder="Canción" required>
+            <div class="ksearch"><input class="gin" id="kSong" maxlength="100" placeholder="Canción (busca por título, artista o código)" required autocomplete="off"><div class="ksugg" id="kSugg" hidden></div><span class="kpick" id="kPick" hidden></span></div>
             <input class="gin" id="kArtist" maxlength="60" placeholder="Artista">
             <input class="gin" id="kNote" maxlength="80" placeholder="Dedicatoria (opcional)">
           </div>
@@ -695,10 +707,17 @@ body.no-door .tick,body.no-door .d .go{display:none}
         <div class="k ktitle">Siguientes</div>
         <div class="glist" id="kQueue"></div>
         <details class="kdone"><summary>Ya han cantado</summary><div class="glist" id="kDone"></div></details>
+        <div class="panel kform" id="kCatAdmin" hidden style="margin-top:14px">
+          <div class="k">Catálogo de canciones del local · <span id="kCatCount">0</span> canciones</div>
+          <p class="note">Una canción por línea: <b>código ; canción ; artista</b>. También vale separado por tabuladores, comas o guiones, o un archivo CSV/TXT exportado de Excel. Al importar se <b>reemplaza</b> el catálogo entero.</p>
+          <textarea class="gin" id="kCatText" rows="5" placeholder="1001;Bohemian Rhapsody;Queen&#10;1002;La Bicicleta;Carlos Vives y Shakira"></textarea>
+          <div class="tools"><label class="btn ghost" style="cursor:pointer">Cargar archivo<input type="file" id="kCatFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden></label><button type="button" class="btn" id="kCatImport">Importar catálogo</button><button type="button" class="btn ghost danger" id="kCatClear">Vaciar</button></div>
+          <p class="note" id="kCatMsg"></p>
+        </div>
       </div>
 
       <div class="kpane" id="k-rank">
-        <div class="panel"><div class="k" id="kRankTitle">Ranking del mes</div><div id="kRank" class="krank"></div></div>
+        <div class="panel"><div class="k" id="kRankTitle">Ranking del mes</div><div id="kRank" class="krank"></div><div id="kRankHidden" hidden></div></div>
         <div class="panel" style="margin-top:12px"><div class="k">Canciones más pedidas</div><div id="kTopSongs" style="margin-top:8px"></div></div>
       </div>
 
@@ -733,8 +752,8 @@ body.no-door .tick,body.no-door .d .go{display:none}
             <input class="gin" id="kResPeople" type="number" min="1" max="50" value="4" inputmode="numeric" placeholder="Personas" required>
             <input class="gin" id="kResNote" maxlength="120" placeholder="Cumpleaños, alguna petición…">
           </div>
-          <button class="btn">Pedir reserva</button>
-          <p class="note">El local te confirma la reserva. La verás aquí abajo.</p>
+          <button class="btn">Reservar por WhatsApp</button>
+          <p class="note" id="kResHint">Se abrirá WhatsApp con tu reserva escrita para enviársela al local.</p>
         </form>
         <div class="k ktitle" id="kResTitle">Tus reservas</div>
         <div class="glist" id="kResList"></div>
@@ -1682,7 +1701,9 @@ const FIREBASE_CONFIG = {
 
   /* ---------------- arranque ---------------- */
   /* ---------------- KARAOKE (módulo por evento) ---------------- */
-  const K = { on: false, q: {}, rev: {}, photos: {}, pend: {}, res: {}, votes: {}, singingId: null, refs: [], voteRef: null, resRef: null, pendRef: null, sub: 'cola', revStars: 5 };
+  // clave segura para Firebase a partir del nombre del cantante (sin . # $ [ ] /)
+  const rankKey = n => (norm(n).replace(/[.#$\[\]\/]/g, '_').replace(/\s+/g, ' ').trim().slice(0, 80)) || '_';
+  const K = { on: false, q: {}, hidden: {}, cat: [], catV: null, pick: null, rev: {}, photos: {}, pend: {},res: {}, votes: {}, singingId: null, refs: [], voteRef: null, resRef: null, pendRef: null, sub: 'cola', revStars: 5 };
   // fotos de clientes: van a "pendientes" y solo se publican cuando el staff las aprueba
   const kMyPend = () => { try { return JSON.parse(lsGet('wf3_mypend_' + store.key) || '{}') || {}; } catch { return {}; } };
   async function kLoadMyPend() {
@@ -1709,6 +1730,8 @@ const FIREBASE_CONFIG = {
     if (want && !K.on) {
       K.on = true;
       const qr = kdb().child('queue'); qr.on('value', s => { K.q = s.val() || {}; kWatchVotes(); renderKara(); }); K.refs.push(qr);
+      const hr = kdb().child('rankHidden'); hr.on('value', s => { K.hidden = s.val() || {}; renderKara(); }); K.refs.push(hr);
+      const cm = kdb().child('catalog/meta'); cm.on('value', s => kCatalogMeta(s.val())); K.refs.push(cm);
       const rr = kdb().child('reviews').limitToLast(100); rr.on('value', s => { K.rev = s.val() || {}; renderKara(); }); K.refs.push(rr);
       const pr = kdb().child('photos').limitToLast(30); pr.on('value', s => { K.photos = s.val() || {}; renderKara(); }); K.refs.push(pr);
       kLoadMyRes();
@@ -1721,6 +1744,7 @@ const FIREBASE_CONFIG = {
       if (!isStaff() && !K.pendLoaded) { K.pendLoaded = true; kLoadMyPend(); }
     }
     $('#kTvBtn').hidden = !isStaff() || perm.local;
+    $('#kCatAdmin').hidden = !can('admin') || perm.local;
     renderKara();
   }
   function kWatchVotes() {
@@ -1747,8 +1771,10 @@ const FIREBASE_CONFIG = {
     const mine = Object.values(K.q).filter(x => x.uid === store.uid && x.status === 'waiting').length;
     if (mine >= 3) return toast('Ya tienes 3 canciones en la cola. Espera a cantar alguna.');
     lsSet('wf3_kname', name);
-    kw(kdb().child('queue').push({ name, song, artist: $('#kArtist').value.trim(), note: $('#kNote').value.trim(), uid: store.uid, at: firebase.database.ServerValue.TIMESTAMP, status: 'waiting' })
-      .then(() => { toast('¡Apuntado! Mira tu turno en la lista'); $('#kSong').value = ''; $('#kArtist').value = ''; $('#kNote').value = ''; }));
+    const item = { name, song, artist: $('#kArtist').value.trim(), note: $('#kNote').value.trim(), uid: store.uid, at: firebase.database.ServerValue.TIMESTAMP, status: 'waiting' };
+    if (K.pick && K.pick.title === song) item.code = K.pick.code;
+    kw(kdb().child('queue').push(item)
+      .then(() => { toast('¡Apuntado! Mira tu turno en la lista'); $('#kSong').value = ''; $('#kArtist').value = ''; $('#kNote').value = ''; kSetPick(null); }));
   };
   function kFinish(id) {
     const x = K.q[id]; if (!x) return Promise.resolve();
@@ -1777,6 +1803,8 @@ const FIREBASE_CONFIG = {
       kw(kdb().update({ ['photos/' + id]: { uid: p.uid, name: p.name || '', img: p.img, at: p.at || Date.now(), approvedBy: store.uid, approvedAt: firebase.database.ServerValue.TIMESTAMP }, ['photosPending/' + id]: null }).then(() => toast('Foto publicada')));
     }
     if (a === 'reject') { if (confirm('¿Rechazar y borrar esta foto?')) kw(kdb().child('photosPending/' + id).remove().then(() => toast('Foto rechazada'))); }
+    if (a === 'rankhide') { if (confirm(`¿Quitar a ${b.dataset.name} del ranking? Lo puedes volver a poner cuando quieras.`)) kw(kdb().child('rankHidden/' + b.dataset.key).set(true).then(() => toast('Quitado del ranking'))); }
+    if (a === 'rankshow') kw(kdb().child('rankHidden/' + b.dataset.key).remove().then(() => toast('Vuelve a estar en el ranking')));
     if (a === 'unpend') { kw(kdb().child('photosPending/' + id).remove().then(() => { toast('Foto retirada'); kLoadMyPend(); })); }
     if (a === 'res') kw(kdb().child('reservations/' + id + '/status').set(b.dataset.s));
   });
@@ -1808,9 +1836,85 @@ const FIREBASE_CONFIG = {
     e.preventDefault();
     const r = { uid: store.uid, name: $('#kResName').value.trim(), phone: $('#kResPhone').value.trim(), date: $('#kResDate').value, time: $('#kResTime').value, people: Math.max(1, parseInt($('#kResPeople').value, 10) || 1), note: $('#kResNote').value.trim(), status: 'pending', at: firebase.database.ServerValue.TIMESTAMP };
     if (!r.name || !r.phone || !r.date) return;
+    // 1) se abre WhatsApp del local con la reserva ya escrita (tiene que ser en el mismo toque para que el móvil no lo bloquee)
+    const wa = phoneWa(EV.phone);
+    if (wa) {
+      const d = new Date(r.date + 'T00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+      const msg = `Hola! Quiero reservar en ${EV.name} 🎤\n👤 ${r.name}\n📅 ${d} · ${r.time}\n👥 ${r.people} persona${r.people === 1 ? '' : 's'}${r.note ? '\n📝 ' + r.note : ''}\n📞 ${r.phone}`;
+      window.open(wa + '?text=' + encodeURIComponent(msg), '_blank');
+    }
+    // 2) y queda guardada en la app para que el staff la tenga en su lista
     const ref = kdb().child('reservations').push();
-    kw(ref.set(r).then(() => { const m = kMyRes(); m[ref.key] = 1; lsSet('wf3_myres_' + store.key, JSON.stringify(m)); toast('Reserva enviada. El local te la confirmará.'); kLoadMyRes(); }));
+    kw(ref.set(r).then(() => { const m = kMyRes(); m[ref.key] = 1; lsSet('wf3_myres_' + store.key, JSON.stringify(m)); toast(wa ? 'Envía el WhatsApp que se ha abierto para confirmar tu reserva' : 'Reserva enviada. El local te la confirmará.'); kLoadMyRes(); }));
   };
+  // ----- catálogo de canciones con su código (el libro del local) -----
+  // Se guarda en trozos en karaoke/catalog y cada móvil lo descarga una vez y lo guarda (solo vuelve a bajarlo si cambia).
+  const catCacheKey = () => 'wf3_cat_' + store.key;
+  function kParseCat(txt) {
+    const out = [], seen = {};
+    String(txt || '').split(/\r?\n/).forEach(line => {
+      line = line.trim(); if (!line) return;
+      let p = line.includes('\t') ? line.split('\t') : line.includes(';') ? line.split(';') : line.includes('|') ? line.split('|') : null;
+      if (!p) { const m = line.match(/^(\S+)\s*[-–—]\s*(.+?)\s*[-–—]\s*(.+)$/); p = m ? [m[1], m[2], m[3]] : line.split(','); }
+      p = p.map(s => s.replace(/^"|"$/g, '').replace(/[\t\n\r]/g, ' ').trim()).filter((s, i) => s || i < 3);
+      if (p.length < 2) return;
+      // el código es el campo corto con números; normalmente el primero
+      let ci = p.findIndex(s => /^[A-Za-z]{0,3}\d{2,8}[A-Za-z]{0,2}$/.test(s)); if (ci < 0) ci = 0;
+      const code = p[ci], rest = p.filter((_, i) => i !== ci);
+      if (/^c[oó]d/i.test(code) || /^(canci|t[ií]tulo|title)/i.test(rest[0] || '')) return;   // fila de cabecera
+      const title = (rest[0] || '').slice(0, 100), artist = (rest[1] || '').slice(0, 80);
+      if (!code || !title) return;
+      const k = code + '|' + norm(title); if (seen[k]) return; seen[k] = 1;
+      out.push({ code: code.slice(0, 20), title, artist });
+    });
+    return out;
+  }
+  function kCatFromChunks(chunks) {
+    const out = [];
+    Object.keys(chunks || {}).sort((a, b) => a - b).forEach(i => String(chunks[i]).split('\n').forEach(l => { const [code, title, artist] = l.split('\t'); if (code && title) out.push({ code, title, artist: artist || '' }); }));
+    return out;
+  }
+  function kCatIndex() { K.cat.forEach(s => { s._n = norm(s.title + ' ' + s.artist + ' ' + s.code); }); $('#kCatCount').textContent = K.cat.length.toLocaleString('es-ES'); $('#kSong').placeholder = K.cat.length ? 'Busca tu canción por título, artista o código' : 'Canción'; }
+  async function kCatalogMeta(meta) {
+    if (!meta || !meta.v) { K.cat = []; K.catV = null; kCatIndex(); return; }
+    if (meta.v === K.catV) return;
+    try { const c = JSON.parse(lsGet(catCacheKey()) || 'null'); if (c && c.v === meta.v) { K.cat = c.list; K.catV = c.v; kCatIndex(); return; } } catch {}
+    try {
+      const s = await kdb().child('catalog/chunks').get();
+      const list = kCatFromChunks(s.val());
+      try { lsSet(catCacheKey(), JSON.stringify({ v: meta.v, list })); } catch {}
+      K.cat = list; K.catV = meta.v; kCatIndex();
+    } catch (e) { console.error(e); }
+  }
+  function kSetPick(s) {
+    K.pick = s;
+    $('#kPick').hidden = !s; $('#kPick').textContent = s ? 'Código ' + s.code : '';
+    if (s) { $('#kSong').value = s.title; $('#kArtist').value = s.artist || ''; }
+  }
+  $('#kSong').addEventListener('input', () => {
+    if (K.pick && $('#kSong').value !== K.pick.title) kSetPick(null);
+    const qv = norm($('#kSong').value.trim()), box = $('#kSugg');
+    if (!K.cat.length || qv.length < 2) { box.hidden = true; return; }
+    const words = qv.split(/\s+/);
+    const res = []; for (const s of K.cat) { if (words.every(w => s._n.includes(w))) { res.push(s); if (res.length >= 8) break; } }
+    box.innerHTML = res.length ? res.map((s, i) => `<button type="button" data-i="${K.cat.indexOf(s)}"><b>${esc(s.code)}</b><span>${esc(s.title)}${s.artist ? ` <em>· ${esc(s.artist)}</em>` : ''}</span></button>`).join('') : '<div class="none">No está en el catálogo. Puedes pedirla igualmente.</div>';
+    box.hidden = false;
+  });
+  $('#kSugg').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (!b) return; kSetPick(K.cat[+b.dataset.i]); $('#kSugg').hidden = true; });
+  document.addEventListener('click', e => { if (!e.target.closest('.ksearch')) $('#kSugg').hidden = true; });
+  $('#kCatFile').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; $('#kCatText').value = await f.text(); kCatPreview(); };
+  $('#kCatText').addEventListener('input', () => kCatPreview());
+  function kCatPreview() { const l = kParseCat($('#kCatText').value); $('#kCatMsg').textContent = l.length ? `Se han reconocido ${l.length.toLocaleString('es-ES')} canciones. Ej.: ${l[0].code} · ${l[0].title}${l[0].artist ? ' · ' + l[0].artist : ''}` : ''; return l; }
+  $('#kCatImport').onclick = async () => {
+    if (!can('admin')) return toast('Solo un admin puede cambiar el catálogo');
+    const list = kCatPreview(); if (!list.length) return toast('No se ha reconocido ninguna canción');
+    if (!confirm(`¿Reemplazar el catálogo por estas ${list.length} canciones?`)) return;
+    const chunks = {}; for (let i = 0; i < list.length; i += 2000) chunks[i / 2000] = list.slice(i, i + 2000).map(s => [s.code, s.title, s.artist].join('\t')).join('\n');
+    try { await kdb().child('catalog').set({ meta: { v: Date.now(), n: list.length }, chunks }); toast(`Catálogo cargado: ${list.length} canciones`); $('#kCatText').value = ''; $('#kCatMsg').textContent = ''; }
+    catch (err) { console.error(err); toast('No se ha podido guardar el catálogo'); }
+  };
+  $('#kCatClear').onclick = () => { if (can('admin') && confirm('¿Vaciar el catálogo de canciones?')) kw(kdb().child('catalog').remove().then(() => toast('Catálogo vaciado'))); };
+
   $('#kTvBtn').onclick = () => window.open(location.href.split('#')[0].split('?')[0] + '?tv=1#k=' + store.key, '_blank');
 
   // ----- pintar -----
@@ -1821,10 +1925,12 @@ const FIREBASE_CONFIG = {
       const sk = norm(x.song) + '|' + norm(x.artist || '');
       songs[sk] = songs[sk] || { song: x.song, artist: x.artist, n: 0 }; songs[sk].n++;
       if (x.status !== 'done' || !x.score || !x.score.count) return;
-      const k = norm(x.name); by[k] = by[k] || { name: x.name, sum: 0, count: 0, perf: 0 };
+      const k = rankKey(x.name); by[k] = by[k] || { key: k, name: x.name, sum: 0, count: 0, perf: 0 };
       by[k].sum += x.score.avg * x.score.count; by[k].count += x.score.count; by[k].perf++;
     });
-    const rank = Object.values(by).map(p => ({ ...p, avg: p.sum / p.count })).sort((a, b) => b.avg - a.avg || b.count - a.count);
+    const all = Object.values(by).map(p => ({ ...p, avg: p.sum / p.count })).sort((a, b) => b.avg - a.avg || b.count - a.count);
+    const rank = all.filter(p => !K.hidden[p.key]), hiddenList = all.filter(p => K.hidden[p.key]);
+    K.hiddenList = hiddenList;
     const top = Object.values(songs).sort((a, b) => b.n - a.n).slice(0, 5);
     return { rank, top };
   }
@@ -1840,7 +1946,7 @@ const FIREBASE_CONFIG = {
     $('#kNow').innerHTML = sing ? `
       <div class="lbl"><i></i>Ahora canta</div>
       <h3>${esc(sing.name)}</h3>
-      <div class="song">${esc(sing.song)}${sing.artist ? ' · ' + esc(sing.artist) : ''}</div>
+      <div class="song">${esc(sing.song)}${sing.artist ? ' · ' + esc(sing.artist) : ''}${sing.code ? ` <span class="kcode">${esc(sing.code)}</span>` : ''}</div>
       ${sing.note ? `<div class="ded">💌 ${esc(sing.note)}</div>` : ''}
       <div class="kvote">${[1, 2, 3, 4, 5].map(n => `<button data-ka="vote" data-v="${n}" class="${myVote >= n ? 'on' : ''}" aria-label="${n} estrellas">★</button>`).join('')}</div>
       <div class="kmeter"><div class="bar"><i style="width:${v.avg / 5 * 100}%"></i></div><b>${v.n ? v.avg.toFixed(1) : '–'}</b><span>${v.n} voto${v.n === 1 ? '' : 's'}</span></div>
@@ -1849,14 +1955,17 @@ const FIREBASE_CONFIG = {
     $('#kQueue').innerHTML = wait.length ? wait.map((x, i) => `
       <div class="kq ${x.uid === me ? 'mine' : ''}">
         <div class="pos">${i + 1}</div>
-        <div class="nm"><b>${esc(x.name)}${x.uid === me ? ' · tú' : ''}</b><span>${esc(x.song)}${x.artist ? ' · ' + esc(x.artist) : ''}${x.note ? ' · 💌 ' + esc(x.note) : ''}</span></div>
+        <div class="nm"><b>${esc(x.name)}${x.uid === me ? ' · tú' : ''}</b><span>${x.code ? `<i class="kcode">${esc(x.code)}</i> ` : ''}${esc(x.song)}${x.artist ? ' · ' + esc(x.artist) : ''}${x.note ? ' · 💌 ' + esc(x.note) : ''}</span></div>
         <div class="acts">${staff ? `<button class="go" data-ka="start" data-id="${x.id}">Cantar</button><button data-ka="first" data-id="${x.id}">↑ Primero</button><button data-ka="skip" data-id="${x.id}">Saltar</button>` : x.uid === me ? `<button data-ka="cancel" data-id="${x.id}">Quitar</button>` : ''}</div>
       </div>`).join('') : '<div class="empty"><b>Cola vacía</b><span>¡Pide la primera canción!</span></div>';
     $('#kDone').innerHTML = done.map(x => `<div class="kq"><div class="pos">✓</div><div class="nm"><b>${esc(x.name)}</b><span>${esc(x.song)}</span></div><div class="acts"><span class="kst ok">${x.score && x.score.count ? '★ ' + x.score.avg.toFixed(1) + ' · ' + x.score.count : 'sin votos'}</span></div></div>`).join('') || '<p class="note" style="padding:12px">Todavía nadie.</p>';
     // ranking
     const { rank, top } = kRanking(), medal = ['🥇', '🥈', '🥉'];
     $('#kRankTitle').textContent = 'Ranking de ' + MONTHS[new Date().getMonth()];
-    $('#kRank').innerHTML = rank.length ? rank.slice(0, 10).map((p, i) => `<div class="kr ${i === 0 ? 'top1' : ''}"><div class="med">${medal[i] || i + 1}</div><div><b>${esc(p.name)}</b><span>${p.perf} actuación${p.perf === 1 ? '' : 'es'} · ${p.count} votos</span></div><div class="sc">${p.avg.toFixed(2)}</div></div>`).join('') : '<p class="note">Aún no hay votaciones este mes. ¡Canta y que te voten!</p>';
+    const adm = can('admin') && !perm.local;
+    $('#kRank').innerHTML = rank.length ? rank.slice(0, 10).map((p, i) => `<div class="kr ${i === 0 ? 'top1' : ''}"><div class="med">${medal[i] || i + 1}</div><div><b>${esc(p.name)}</b><span>${p.perf} actuación${p.perf === 1 ? '' : 'es'} · ${p.count} votos</span></div><div class="sc">${p.avg.toFixed(2)}${adm ? `<button class="kdel" data-ka="rankhide" data-key="${esc(p.key)}" data-name="${esc(p.name)}">Quitar</button>` : ''}</div></div>`).join('') : '<p class="note">Aún no hay votaciones este mes. ¡Canta y que te voten!</p>';
+    $('#kRankHidden').hidden = !adm || !(K.hiddenList || []).length;
+    $('#kRankHidden').innerHTML = adm && (K.hiddenList || []).length ? `<div class="k ktitle">Quitados del ranking (solo lo ves tú)</div>` + K.hiddenList.map(p => `<div class="rowkv"><span>${esc(p.name)} · ${p.avg.toFixed(2)}</span><button class="kst ok" data-ka="rankshow" data-key="${esc(p.key)}">Volver a poner</button></div>`).join('') : '';
     $('#kTopSongs').innerHTML = top.length ? top.map((s, i) => `<div class="rowkv"><span>${i + 1}. ${esc(s.song)}${s.artist ? ' · ' + esc(s.artist) : ''}</span><b>${s.n}×</b></div>`).join('') : '<p class="note">Todavía no se ha pedido ninguna.</p>';
     // reseñas
     const revs = Object.entries(K.rev).map(([id, r]) => ({ id, ...r })).sort((a, b) => (b.at || 0) - (a.at || 0));
@@ -1892,9 +2001,9 @@ const FIREBASE_CONFIG = {
   function renderTv(sing, wait, v, rank) {
     $('#tvName').textContent = EV.name; $('#tvLogo').hidden = !EV.logo; if (EV.logo) $('#tvLogo').src = EV.logo;
     $('.tv-bg').style.backgroundImage = EV.poster && EV.poster !== 'none' ? `url("${EV.poster}")` : getComputedStyle($('.hero-bg')).backgroundImage;
-    $('#tvNow').innerHTML = sing ? `<div class="lbl"><i></i>Ahora canta</div><h3>${esc(sing.name)}</h3><div class="song">${esc(sing.song)}${sing.artist ? ' · ' + esc(sing.artist) : ''}</div>${sing.note ? `<div class="ded">💌 ${esc(sing.note)}</div>` : ''}<div class="tv-meter"><div class="bar"><i style="width:${v.avg / 5 * 100}%"></i></div><b>${v.n ? v.avg.toFixed(1) : '–'}</b><span>${v.n} votos</span></div>`
+    $('#tvNow').innerHTML = sing ? `<div class="lbl"><i></i>Ahora canta</div><h3>${esc(sing.name)}</h3><div class="song">${esc(sing.song)}${sing.artist ? ' · ' + esc(sing.artist) : ''}${sing.code ? ` <span class="kcode">${esc(sing.code)}</span>` : ''}</div>${sing.note ? `<div class="ded">💌 ${esc(sing.note)}</div>` : ''}<div class="tv-meter"><div class="bar"><i style="width:${v.avg / 5 * 100}%"></i></div><b>${v.n ? v.avg.toFixed(1) : '–'}</b><span>${v.n} votos</span></div>`
       : `<div class="lbl">${esc(EV.tag || 'Karaoke')}</div><h3>¡Pide tu canción!</h3><div class="song">Escanea el QR y apúntate</div>`;
-    $('#tvNext').innerHTML = wait.slice(0, 5).map((x, i) => `<div class="tv-nx"><em>${i + 1}</em><div><b>${esc(x.name)}</b><span>${esc(x.song)}</span></div></div>`).join('') || '<div class="tv-nx"><div><span>La cola está vacía</span></div></div>';
+    $('#tvNext').innerHTML = wait.slice(0, 5).map((x, i) => `<div class="tv-nx"><em>${i + 1}</em><div><b>${esc(x.name)}</b><span>${x.code ? esc(x.code) + ' · ' : ''}${esc(x.song)}</span></div></div>`).join('') || '<div class="tv-nx"><div><span>La cola está vacía</span></div></div>';
     $('#tvRank').innerHTML = rank.length ? `<span class="t">Top ${MONTHS[new Date().getMonth()]}</span>` + rank.slice(0, 3).map((p, i) => `<span class="p">${['🥇', '🥈', '🥉'][i]} ${esc(p.name)} <b>${p.avg.toFixed(1)}</b></span>`).join('') : `<span class="t">${esc(EV.venue || '')}</span>`;
     const qrUrl = location.href.split('?')[0].split('#')[0] + '#k=' + store.key;
     if (window.QRCode && (!$('#tvQr').children.length || $('#tvQr').dataset.u !== qrUrl)) {
