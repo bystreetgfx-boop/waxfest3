@@ -275,6 +275,120 @@ body.nomoney .kpis{grid-template-columns:repeat(3,1fr)}
 @media (max-width:820px){.pwgrid{grid-template-columns:1fr}}
 
 .g.ro .more{visibility:hidden}
+/* ---------- KARAOKE ---------- */
+.kseg{margin-bottom:14px;width:max-content;max-width:100%}
+.kpane{display:none;animation:fade .4s var(--ease)}
+.kpane.on{display:block}
+.ktitle{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px}
+.kform{display:grid;gap:12px}
+.kform .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.kform .btn{justify-content:center;padding:15px}
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kgrid .gin,.kform>.gin{text-align:left;font-size:15px;padding:13px 14px}
+.kform textarea.gin{resize:vertical;font-family:var(--ui)}
+@media (max-width:820px){.kgrid{grid-template-columns:1fr}}
+.know{position:relative;overflow:hidden;border-radius:26px;padding:26px;margin-bottom:12px;border:1px solid rgba(var(--okrgb),.35);background:radial-gradient(ellipse at 0% 0%,rgba(var(--okrgb),.22),transparent 60%),linear-gradient(160deg,var(--card2),var(--card))}
+.know .lbl{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ok)}
+.know .lbl i{width:9px;height:9px;border-radius:50%;background:var(--bad);animation:pulse 1.4s infinite;box-shadow:0 0 0 0 rgba(255,91,72,.6)}
+.know h3{font-family:var(--display);font-weight:400;font-size:clamp(40px,8vw,72px);line-height:.95;text-transform:uppercase;margin-top:12px}
+.know .song{font-family:var(--serif);font-style:italic;font-size:clamp(22px,4vw,30px);color:var(--ink2);margin-top:6px}
+.know .ded{font-size:14px;color:var(--dim);margin-top:8px}
+.kvote{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.kvote button{width:54px;height:54px;border-radius:16px;border:1px solid var(--line2);font-size:26px;color:var(--mute);transition:.15s var(--ease)}
+.kvote button:hover{transform:translateY(-2px)}
+.kvote button.on{color:var(--ok);border-color:var(--ok);background:rgba(var(--okrgb),.12)}
+.kmeter{display:flex;align-items:center;gap:14px;margin-top:16px}
+.kmeter .bar{flex:1;height:12px;border-radius:12px;background:var(--line);overflow:hidden}
+.kmeter .bar i{display:block;height:100%;border-radius:12px;background:linear-gradient(90deg,var(--ok),#fff);transition:width .6s var(--ease)}
+.kmeter b{font-family:var(--display);font-size:30px;font-weight:400}
+.kmeter span{font-size:12px;color:var(--dim);font-family:var(--mono)}
+.kstaff{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.kidle{text-align:center;padding:10px}
+.kidle b{display:block;font-family:var(--serif);font-style:italic;font-weight:400;font-size:28px;color:var(--ink2)}
+.kidle span{display:block;color:var(--dim);font-size:14px;margin-top:6px}
+.kq{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line)}
+.kq:last-child{border-bottom:0}
+.kq .pos{font-family:var(--display);font-size:22px;color:var(--dim);text-align:center}
+.kq.mine{background:rgba(var(--okrgb),.08)}
+.kq.mine .pos{color:var(--ok)}
+.kq .nm b{display:block;font-weight:700;font-size:15px}
+.kq .nm span{display:block;font-size:13px;color:var(--dim);margin-top:2px}
+.kq .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.kq .acts button{font-size:12px;font-weight:700;padding:7px 11px;border-radius:999px;border:1px solid var(--line2);color:var(--ink2)}
+.kq .acts button.go{background:var(--ok);color:var(--onok);border-color:var(--ok)}
+.kdone{margin-top:14px}
+.kdone summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);padding:10px 0}
+.krank{margin-top:10px}
+.kr{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.kr:last-child{border-bottom:0}
+.kr .med{font-size:26px;text-align:center;font-family:var(--display);color:var(--dim)}
+.kr b{font-weight:800;font-size:16px}
+.kr span{display:block;font-size:12.5px;color:var(--dim)}
+.kr .sc{font-family:var(--display);font-size:26px;color:var(--ok)}
+.kr.top1 b{font-size:19px}
+.ksum{display:flex;align-items:center;gap:20px}
+.kbig{font-family:var(--display);font-size:72px;line-height:1}
+.kstars{color:var(--ok);font-size:22px;letter-spacing:2px}
+.kstarpick{display:flex;gap:6px}
+.kstarpick button{font-size:34px;color:var(--mute);line-height:1}
+.kstarpick button.on{color:var(--ok)}
+.krev{padding:14px 16px;border-bottom:1px solid var(--line)}
+.krev:last-child{border-bottom:0}
+.krev .h{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.krev .h b{font-weight:700}
+.krev .h span{color:var(--ok);letter-spacing:1px}
+.krev p{margin-top:6px;color:var(--ink2);font-size:14px;line-height:1.5;white-space:pre-line}
+.krev small{display:block;color:var(--mute);font-size:11px;margin-top:6px;font-family:var(--mono)}
+.kdel{font-size:11px;color:var(--bad);border:1px solid rgba(255,91,72,.4);border-radius:999px;padding:3px 9px;margin-left:8px}
+.kphotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:12px}
+.kph{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:1;background:var(--card)}
+.kph img{width:100%;height:100%;object-fit:cover;display:block}
+.kph span{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:700;background:rgba(0,0,0,.55);color:#fff;padding:3px 8px;border-radius:999px}
+.kph .kdel{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.6);margin:0}
+.kst{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid var(--line2)}
+.kst.ok{color:var(--ok);border-color:rgba(var(--okrgb),.5)}
+.kst.no{color:var(--bad);border-color:rgba(255,91,72,.5)}
+
+/* ---------- PANTALLA TV ---------- */
+body.tvmode{overflow:hidden}
+body.tvmode > *:not(#tvView):not(script){display:none!important}
+.tv{position:fixed;inset:0;z-index:200;background:var(--bg);color:var(--ink);overflow:hidden}
+.tv-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(1.15) brightness(.35) blur(2px);transform:scale(1.05)}
+.tv-in{position:relative;height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:2.2vh;padding:3.5vh 4vw}
+.tv-head{display:flex;align-items:center;gap:2vw}
+.tv-logo{height:9vh;width:auto;filter:drop-shadow(0 6px 20px rgba(0,0,0,.7))}
+.tv-name{font-family:var(--display);font-weight:400;font-size:5vh;text-transform:uppercase;letter-spacing:.04em}
+.tv-fs{margin-left:auto;font-size:1.6vh;color:var(--dim);border:1px solid var(--line2);border-radius:999px;padding:.8vh 1.6vh}
+.tv-main{display:grid;grid-template-columns:1.6fr 1fr;gap:2.5vw;min-height:0}
+.tv-now{border-radius:3vh;padding:4vh 3.5vw;background:radial-gradient(ellipse at 0% 0%,rgba(var(--okrgb),.28),transparent 60%),rgba(var(--bgrgb),.55);border:1px solid rgba(var(--okrgb),.4);display:flex;flex-direction:column;justify-content:center;backdrop-filter:blur(10px)}
+.tv-now .lbl{font-family:var(--mono);font-size:2.2vh;letter-spacing:.3em;text-transform:uppercase;color:var(--ok);display:flex;align-items:center;gap:1.2vh}
+.tv-now .lbl i{width:1.4vh;height:1.4vh;border-radius:50%;background:var(--bad);animation:pulse 1.4s infinite}
+.tv-now h3{font-family:var(--display);font-weight:400;font-size:13vh;line-height:.9;text-transform:uppercase;margin-top:2vh;word-break:break-word}
+.tv-now .song{font-family:var(--serif);font-style:italic;font-size:5vh;color:var(--ink2);margin-top:1.5vh}
+.tv-now .ded{font-size:2.6vh;color:var(--dim);margin-top:1.5vh}
+.tv-meter{display:flex;align-items:center;gap:2vw;margin-top:4vh}
+.tv-meter .bar{flex:1;height:2.4vh;border-radius:2vh;background:var(--line);overflow:hidden}
+.tv-meter .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),#fff);transition:width .6s var(--ease)}
+.tv-meter b{font-family:var(--display);font-weight:400;font-size:7vh}
+.tv-meter span{font-family:var(--mono);font-size:2vh;color:var(--dim)}
+.tv-side{display:grid;grid-template-rows:1fr auto;gap:2.2vh;min-height:0}
+.tv-card{border-radius:2.6vh;padding:3vh 2vw;background:rgba(var(--bgrgb),.55);border:1px solid var(--line2);backdrop-filter:blur(10px);overflow:hidden}
+.tv-k{font-family:var(--mono);font-size:1.9vh;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);margin-bottom:1.6vh}
+.tv-nx{display:flex;gap:1.4vw;align-items:baseline;padding:1.2vh 0;border-bottom:1px solid var(--line)}
+.tv-nx:last-child{border-bottom:0}
+.tv-nx em{font-family:var(--display);font-style:normal;font-size:3.4vh;color:var(--ok);min-width:3vh}
+.tv-nx b{font-size:3vh;font-weight:800}
+.tv-nx span{display:block;font-size:2.2vh;color:var(--dim)}
+.tv-qr{display:flex;align-items:center;gap:1.6vw}
+.tv-qr #tvQr{background:#fff;padding:1vh;border-radius:1.4vh;line-height:0}
+.tv-qr #tvQr img,.tv-qr #tvQr canvas{width:16vh!important;height:16vh!important}
+.tv-qr b{display:block;font-size:2.8vh}
+.tv-qr span{display:block;font-size:2vh;color:var(--dim);margin-top:.6vh}
+.tv-rank{display:flex;gap:1.4vw;flex-wrap:wrap;align-items:center;font-size:2.4vh}
+.tv-rank .t{font-family:var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-size:1.8vh}
+.tv-rank .p{padding:1vh 1.6vw;border-radius:999px;background:rgba(var(--bgrgb),.6);border:1px solid var(--line2)}
+.tv-rank .p b{color:var(--ok)}
+
 /* logo del evento y foto en color */
 .evlogo{display:block;width:min(460px,86%);height:auto;margin:14px 0 4px -6px;filter:drop-shadow(0 12px 34px rgba(0,0,0,.75)) drop-shadow(0 0 26px rgba(var(--okrgb),.28));animation:logoIn 1.2s var(--ease) both}
 @keyframes logoIn{from{opacity:0;filter:blur(16px) drop-shadow(0 0 0 transparent);transform:translateY(10px) scale(1.04)}}
@@ -454,6 +568,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
       <button data-tab="list" class="on">Lista</button>
       <button data-tab="door">Puerta</button>
       <button data-tab="count">Contador</button>
+      <button data-tab="kara" hidden>Karaoke</button>
       <button data-tab="money">Dinero</button>
       <button data-tab="team" hidden>Equipo<span class="badge" hidden></span></button>
     </nav>
@@ -546,6 +661,76 @@ body.no-door .tick,body.no-door .d .go{display:none}
       </div>
     </section>
 
+    <!-- KARAOKE -->
+    <section class="view" id="v-kara">
+      <div class="sec-h"><h2>Karaoke<em>en directo</em></h2><button class="btn ghost" id="kTvBtn" hidden>Pantalla TV</button></div>
+      <div class="seg kseg" id="kSeg">
+        <button data-k="cola" class="on">Canciones</button>
+        <button data-k="rank">Ranking</button>
+        <button data-k="rev">Reseñas</button>
+        <button data-k="fotos">Fotos</button>
+        <button data-k="res">Reservar</button>
+      </div>
+
+      <div class="kpane on" id="k-cola">
+        <div class="know" id="kNow"></div>
+        <form class="panel kform" id="kReqForm" autocomplete="off">
+          <div class="k">Pide tu canción</div>
+          <div class="kgrid">
+            <input class="gin" id="kName" maxlength="40" placeholder="Tu nombre (como saldrás en pantalla)" required>
+            <input class="gin" id="kSong" maxlength="100" placeholder="Canción" required>
+            <input class="gin" id="kArtist" maxlength="60" placeholder="Artista">
+            <input class="gin" id="kNote" maxlength="80" placeholder="Dedicatoria (opcional)">
+          </div>
+          <button class="btn" id="kReqBtn">🎤 Apuntarme a cantar</button>
+        </form>
+        <div class="k ktitle">Siguientes</div>
+        <div class="glist" id="kQueue"></div>
+        <details class="kdone"><summary>Ya han cantado</summary><div class="glist" id="kDone"></div></details>
+      </div>
+
+      <div class="kpane" id="k-rank">
+        <div class="panel"><div class="k" id="kRankTitle">Ranking del mes</div><div id="kRank" class="krank"></div></div>
+        <div class="panel" style="margin-top:12px"><div class="k">Canciones más pedidas</div><div id="kTopSongs" style="margin-top:8px"></div></div>
+      </div>
+
+      <div class="kpane" id="k-rev">
+        <div class="panel ksum"><div class="kbig" id="kRevAvg">—</div><div><div class="kstars" id="kRevStars"></div><div class="note" id="kRevCount">Sin reseñas todavía</div></div></div>
+        <form class="panel kform" id="kRevForm" style="margin-top:12px">
+          <div class="k">Deja tu reseña</div>
+          <div class="kstarpick" id="kRevPick"><button type="button" data-s="1">★</button><button type="button" data-s="2">★</button><button type="button" data-s="3">★</button><button type="button" data-s="4">★</button><button type="button" data-s="5">★</button></div>
+          <input class="gin" id="kRevName" maxlength="40" placeholder="Tu nombre">
+          <textarea class="gin" id="kRevText" maxlength="500" rows="3" placeholder="¿Qué tal la noche?"></textarea>
+          <button class="btn">Publicar reseña</button>
+        </form>
+        <div class="glist" id="kRevList" style="margin-top:12px"></div>
+      </div>
+
+      <div class="kpane" id="k-fotos">
+        <div class="panel kform"><div class="k">Fotos de la noche</div><p class="note">Sube tus fotos y aparecen aquí para todos.</p>
+          <label class="btn" style="cursor:pointer">📸 Subir foto<input type="file" id="kPhotoIn" accept="image/*" hidden></label></div>
+        <div class="kphotos" id="kPhotos"></div>
+      </div>
+
+      <div class="kpane" id="k-res">
+        <form class="panel kform" id="kResForm" autocomplete="off">
+          <div class="k">Reserva tu mesa</div>
+          <div class="kgrid">
+            <input class="gin" id="kResName" maxlength="40" placeholder="Nombre" required>
+            <input class="gin" id="kResPhone" maxlength="20" inputmode="tel" placeholder="Teléfono" required>
+            <input class="gin" id="kResDate" type="date" required>
+            <input class="gin" id="kResTime" type="time" value="21:00" required>
+            <input class="gin" id="kResPeople" type="number" min="1" max="50" value="4" inputmode="numeric" placeholder="Personas" required>
+            <input class="gin" id="kResNote" maxlength="120" placeholder="Cumpleaños, alguna petición…">
+          </div>
+          <button class="btn">Pedir reserva</button>
+          <p class="note">El local te confirma la reserva. La verás aquí abajo.</p>
+        </form>
+        <div class="k ktitle" id="kResTitle">Tus reservas</div>
+        <div class="glist" id="kResList"></div>
+      </div>
+    </section>
+
     <!-- DINERO -->
     <section class="view" id="v-money">
       <div class="sec-h"><h2>Reparto<em>de la noche</em></h2></div>
@@ -615,6 +800,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
           <label class="field wide"><span>Logo (PNG sin fondo; si tiene fondo negro se quita solo)</span><input class="gin" id="evLogoIn" type="file" accept="image/*"></label>
         </div>
         <label class="switch"><input type="checkbox" id="evP2Venue"><i></i><span>El dinero de la 2ª entrada va <b>entero a la sala</b></span></label>
+        <label class="switch"><input type="checkbox" id="evKaraoke"><i></i><span><b>Módulo karaoke</b>: pedir canciones, votos del público, ranking, reseñas, fotos, reservas y pantalla TV</span></label>
         <label class="switch"><input type="checkbox" id="evPhotoColor"><i></i><span>Foto de fondo <b>en color</b> (si no, en blanco y negro como un cartel)</span></label>
         <div class="tools"><button class="btn ghost" id="evLogoDel">Quitar logo</button></div>
         <div class="k" style="margin-top:22px">Gama cromática</div>
@@ -662,6 +848,7 @@ body.no-door .tick,body.no-door .d .go{display:none}
   <button data-tab="list" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Lista</button>
   <button data-tab="door"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 17l5-5-5-5M15 12H3"/></svg>Puerta</button>
   <button data-tab="count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Contador</button>
+  <button data-tab="kara" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></svg>Karaoke</button>
   <button class="plus" data-open-add aria-label="Apuntar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   <button data-tab="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.6-1-1.7-1.5-3-1.5-1.7 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.4 0-2.5-.6-3-1.6M12 6v2M12 16v2"/></svg>Dinero</button>
   <button data-tab="team" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.6c1.9.7 3.1 2.6 3.5 5.4"/></svg>Equipo<span class="badge" hidden></span></button>
@@ -697,10 +884,27 @@ body.no-door .tick,body.no-door .d .go{display:none}
 
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastBtn" hidden>Deshacer</button></div>
 
+<!-- PANTALLA PARA LA TV DEL LOCAL (se abre con ?tv=1) -->
+<div class="tv" id="tvView" hidden>
+  <div class="tv-bg"></div>
+  <div class="tv-in">
+    <div class="tv-head"><img class="tv-logo" id="tvLogo" alt=""><b class="tv-name" id="tvName"></b><button class="tv-fs" id="tvFs">Pantalla completa</button></div>
+    <div class="tv-main">
+      <div class="tv-now" id="tvNow"></div>
+      <div class="tv-side">
+        <div class="tv-card"><div class="tv-k">Siguientes</div><div id="tvNext"></div></div>
+        <div class="tv-card tv-qr"><div id="tvQr"></div><div><b>Pide tu canción y vota</b><span>Escanea con la cámara del móvil</span></div></div>
+      </div>
+    </div>
+    <div class="tv-rank" id="tvRank"></div>
+  </div>
+</div>
+
 <!-- Firebase (solo se usa si hay configuración abajo) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 /* =====================================================================
    CONFIGURACIÓN DE SINCRONIZACIÓN
@@ -987,6 +1191,8 @@ const FIREBASE_CONFIG = {
       else if (gateState !== 'enter' || perm.role) gate(null);
     }
     render(); renderCounter();
+    karaSync();
+    if (EV.karaoke && !K.defaulted && perm.ready && !can('door')) { K.defaulted = true; setTab('kara'); }
   }
 
   function gate(s, force) {
@@ -996,13 +1202,13 @@ const FIREBASE_CONFIG = {
     if (!s) { g.classList.remove('on'); return; }
     const id = store && store.uid ? store.uid.slice(-6).toUpperCase() : '';
     const T = {
-      enter: `<h2>${esc((EV.name + (EV.edition ? ' ' + EV.edition : '')).trim())}</h2><p>Con la contraseña del equipo puedes apuntar gente. Sin contraseña solo ves la lista.</p>
+      enter: `<h2>${esc((EV.name + (EV.edition ? ' ' + EV.edition : '')).trim())}</h2><p>${EV.karaoke ? 'Entra para pedir tu canción, votar a quien canta, reservar y dejar tu reseña. El equipo del local entra con su contraseña.' : 'Con la contraseña del equipo puedes apuntar gente. Sin contraseña solo ves la lista.'}</p>
         <form class="acts" id="enterForm">
           <input class="gin" id="gName" maxlength="40" placeholder="Tu nombre" autocomplete="name" value="${esc(lsGet('wf3_name') || '')}">
           <input class="gin" id="gPass" type="password" placeholder="Contraseña" autocomplete="current-password">
           <p class="gerr" id="gErr"></p>
           <button class="btn" id="gGo">Entrar</button>
-          ${perm.role ? '<button type="button" class="btn ghost" data-g="close">Cancelar</button>' : '<button type="button" class="btn ghost" data-g="view">Ver la lista sin contraseña</button>'}
+          ${perm.role ? '<button type="button" class="btn ghost" data-g="close">Cancelar</button>' : (EV.karaoke ? '<button type="button" class="btn" data-g="view">🎤 Entrar como cliente</button>' : '<button type="button" class="btn ghost" data-g="view">Ver la lista sin contraseña</button>')}
         </form>`,
       owner: `<h2>Nuevo<br>evento</h2><p>Eres el organizador. Pon tu nombre: saldrá como quien apunta a la gente.</p><form class="acts" id="ownerForm"><input class="gin" id="gOwner" required maxlength="40" placeholder="Tu nombre" autocomplete="name" value="${esc(lsGet('wf3_name') || '')}"><button class="btn">Crear evento</button></form>`,
       nokey: `<h2>Guest list</h2><p>Esta lista es privada. Ábrela con el enlace que te han pasado.</p>${eventLinks() ? `<div class="evpick">${eventLinks()}</div>` : ''}<div class="acts"><button class="btn" data-g="new">Soy el organizador · crear evento</button><button class="btn ghost" data-g="paste">Pegar enlace</button></div>`,
@@ -1465,6 +1671,201 @@ const FIREBASE_CONFIG = {
   }
 
   /* ---------------- arranque ---------------- */
+  /* ---------------- KARAOKE (módulo por evento) ---------------- */
+  const K = { on: false, q: {}, rev: {}, photos: {}, res: {}, votes: {}, singingId: null, refs: [], voteRef: null, resRef: null, sub: 'cola', revStars: 5 };
+  const kdb = () => firebase.database().ref('events/' + store.key + '/karaoke');
+  const isStaff = () => perm.local || canEnter() || can('edit');
+  const kMyRes = () => { try { return JSON.parse(lsGet('wf3_myres_' + store.key) || '{}') || {}; } catch { return {}; } };
+  const starsTxt = n => '★★★★★'.slice(0, Math.round(n)) + '☆☆☆☆☆'.slice(0, 5 - Math.round(n));
+  const monthKey = t => { const d = new Date(t || Date.now()); return d.getFullYear() + '-' + d.getMonth(); };
+  const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const kAvg = votes => { const v = Object.values(votes || {}).filter(x => typeof x === 'number'); return { avg: v.length ? v.reduce((s, x) => s + x, 0) / v.length : 0, n: v.length }; };
+  const kOff = () => { K.refs.forEach(r => r.off()); K.refs = []; if (K.voteRef) { K.voteRef.off(); K.voteRef = null; } if (K.resRef) { K.resRef.off(); K.resRef = null; } K.on = false; };
+
+  function karaSync() {
+    const show = !!EV.karaoke;
+    $$('[data-tab="kara"]').forEach(b => b.hidden = !show);
+    if (!show && tab === 'kara') setTab('list');
+    const want = show && !perm.local && store && store.mode === 'cloud' && store.uid && perm.ready && can('view') && typeof firebase !== 'undefined';
+    if (want && !K.on) {
+      K.on = true;
+      const qr = kdb().child('queue'); qr.on('value', s => { K.q = s.val() || {}; kWatchVotes(); renderKara(); }); K.refs.push(qr);
+      const rr = kdb().child('reviews').limitToLast(100); rr.on('value', s => { K.rev = s.val() || {}; renderKara(); }); K.refs.push(rr);
+      const pr = kdb().child('photos').limitToLast(30); pr.on('value', s => { K.photos = s.val() || {}; renderKara(); }); K.refs.push(pr);
+      kLoadMyRes();
+    } else if (!want && K.on) kOff();
+    if (K.on) {
+      if (isStaff() && !K.resRef) { K.resRef = kdb().child('reservations').limitToLast(200); K.resRef.on('value', s => { K.res = s.val() || {}; renderKara(); }, () => { K.resRef = null; }); }
+      else if (!isStaff() && K.resRef) { K.resRef.off(); K.resRef = null; K.res = {}; kLoadMyRes(); }
+    }
+    $('#kTvBtn').hidden = !isStaff() || perm.local;
+    renderKara();
+  }
+  function kWatchVotes() {
+    const sing = Object.entries(K.q).find(([, x]) => x.status === 'singing');
+    const id = sing ? sing[0] : null;
+    if (id === K.singingId) return;
+    if (K.voteRef) { K.voteRef.off(); K.voteRef = null; }
+    K.singingId = id; K.votes = {};
+    if (id) { K.voteRef = kdb().child('votes/' + id); K.voteRef.on('value', s => { K.votes = s.val() || {}; renderKara(); }); }
+  }
+  async function kLoadMyRes() {
+    if (isStaff()) return;
+    const ids = Object.keys(kMyRes()); const out = {};
+    await Promise.all(ids.map(id => kdb().child('reservations/' + id).get().then(s => { if (s.val()) out[id] = s.val(); }).catch(() => {})));
+    K.res = out; renderKara();
+  }
+
+  // ----- acciones -----
+  const kw = p => p.catch(e => { console.error(e); toast('No se ha podido. ¿Tienes conexión?'); });
+  $('#kReqForm').onsubmit = e => {
+    e.preventDefault();
+    const name = $('#kName').value.trim(), song = $('#kSong').value.trim();
+    if (!name || !song) return;
+    const mine = Object.values(K.q).filter(x => x.uid === store.uid && x.status === 'waiting').length;
+    if (mine >= 3) return toast('Ya tienes 3 canciones en la cola. Espera a cantar alguna.');
+    lsSet('wf3_kname', name);
+    kw(kdb().child('queue').push({ name, song, artist: $('#kArtist').value.trim(), note: $('#kNote').value.trim(), uid: store.uid, at: firebase.database.ServerValue.TIMESTAMP, status: 'waiting' })
+      .then(() => { toast('¡Apuntado! Mira tu turno en la lista'); $('#kSong').value = ''; $('#kArtist').value = ''; $('#kNote').value = ''; }));
+  };
+  function kFinish(id) {
+    const x = K.q[id]; if (!x) return Promise.resolve();
+    return kdb().child('votes/' + id).get().then(s => { const a = kAvg(s.val()); return kdb().child('queue/' + id).update({ status: 'done', doneAt: firebase.database.ServerValue.TIMESTAMP, score: { sum: Math.round(a.avg * a.n), count: a.n, avg: Math.round(a.avg * 100) / 100 } }); });
+  }
+  async function kStart(id) {
+    if (K.singingId && K.singingId !== id) await kFinish(K.singingId);
+    return kdb().child('queue/' + id).update({ status: 'singing', startedAt: firebase.database.ServerValue.TIMESTAMP });
+  }
+  const kWaiting = () => Object.entries(K.q).filter(([, x]) => x.status === 'waiting').sort((a, b) => (a[1].at || 0) - (b[1].at || 0));
+  $('#v-kara').addEventListener('click', e => {
+    const b = e.target.closest('[data-ka]'); if (!b) return;
+    const a = b.dataset.ka, id = b.dataset.id;
+    if (a === 'vote') { if (!K.singingId) return; kw(kdb().child('votes/' + K.singingId + '/' + store.uid).set(+b.dataset.v).then(() => toast('¡Voto enviado!'))); if (navigator.vibrate) navigator.vibrate(20); }
+    if (a === 'next') { const w = kWaiting()[0]; if (!w) { if (K.singingId) kw(kFinish(K.singingId)); return toast('No hay nadie más en la cola'); } kw(kStart(w[0])); }
+    if (a === 'finish' && K.singingId) kw(kFinish(K.singingId));
+    if (a === 'start') kw(kStart(id));
+    if (a === 'first') { const w = kWaiting(); const min = w.length ? (w[0][1].at || Date.now()) : Date.now(); kw(kdb().child('queue/' + id + '/at').set(min - 1000)); }
+    if (a === 'skip') kw(kdb().child('queue/' + id).update({ status: 'skipped' }));
+    if (a === 'cancel') { if (confirm('¿Quitar tu canción de la cola?')) kw(kdb().child('queue/' + id).remove()); }
+    if (a === 'delrev') { if (confirm('¿Borrar esta reseña?')) kw(kdb().child('reviews/' + id).remove()); }
+    if (a === 'delph') { if (confirm('¿Borrar esta foto?')) kw(kdb().child('photos/' + id).remove()); }
+    if (a === 'res') kw(kdb().child('reservations/' + id + '/status').set(b.dataset.s));
+  });
+  $('#kSeg').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; K.sub = b.dataset.k; $$('#kSeg button').forEach(x => x.classList.toggle('on', x === b)); $$('.kpane').forEach(p => p.classList.toggle('on', p.id === 'k-' + K.sub)); };
+  $('#kRevPick').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; K.revStars = +b.dataset.s; $$('#kRevPick button').forEach(x => x.classList.toggle('on', +x.dataset.s <= K.revStars)); };
+  $$('#kRevPick button').forEach(x => x.classList.add('on'));
+  $('#kRevForm').onsubmit = e => {
+    e.preventDefault();
+    const name = $('#kRevName').value.trim() || lsGet('wf3_kname') || 'Anónimo', text = $('#kRevText').value.trim();
+    if (Object.values(K.rev).some(r => r.uid === store.uid)) return toast('Ya has dejado una reseña desde este móvil');
+    kw(kdb().child('reviews').push({ uid: store.uid, name, stars: K.revStars, text, at: firebase.database.ServerValue.TIMESTAMP }).then(() => { toast('¡Gracias por tu reseña!'); $('#kRevText').value = ''; }));
+  };
+  $('#kPhotoIn').onchange = async e => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    try {
+      const img = await shrinkImage(f, 700, 0.66);
+      await kdb().child('photos').push({ uid: store.uid, name: lsGet('wf3_kname') || lsGet('wf3_name') || '', img, at: firebase.database.ServerValue.TIMESTAMP });
+      toast('¡Foto subida!');
+    } catch (err) { console.error(err); toast('No se ha podido subir la foto'); }
+  };
+  $('#kResForm').onsubmit = e => {
+    e.preventDefault();
+    const r = { uid: store.uid, name: $('#kResName').value.trim(), phone: $('#kResPhone').value.trim(), date: $('#kResDate').value, time: $('#kResTime').value, people: Math.max(1, parseInt($('#kResPeople').value, 10) || 1), note: $('#kResNote').value.trim(), status: 'pending', at: firebase.database.ServerValue.TIMESTAMP };
+    if (!r.name || !r.phone || !r.date) return;
+    const ref = kdb().child('reservations').push();
+    kw(ref.set(r).then(() => { const m = kMyRes(); m[ref.key] = 1; lsSet('wf3_myres_' + store.key, JSON.stringify(m)); toast('Reserva enviada. El local te la confirmará.'); kLoadMyRes(); }));
+  };
+  $('#kTvBtn').onclick = () => window.open(location.href.split('#')[0].split('?')[0] + '?tv=1#k=' + store.key, '_blank');
+
+  // ----- pintar -----
+  function kRanking() {
+    const mk = monthKey(), by = {}, songs = {};
+    Object.values(K.q).forEach(x => {
+      if (monthKey(x.at) !== mk) return;
+      const sk = norm(x.song) + '|' + norm(x.artist || '');
+      songs[sk] = songs[sk] || { song: x.song, artist: x.artist, n: 0 }; songs[sk].n++;
+      if (x.status !== 'done' || !x.score || !x.score.count) return;
+      const k = norm(x.name); by[k] = by[k] || { name: x.name, sum: 0, count: 0, perf: 0 };
+      by[k].sum += x.score.avg * x.score.count; by[k].count += x.score.count; by[k].perf++;
+    });
+    const rank = Object.values(by).map(p => ({ ...p, avg: p.sum / p.count })).sort((a, b) => b.avg - a.avg || b.count - a.count);
+    const top = Object.values(songs).sort((a, b) => b.n - a.n).slice(0, 5);
+    return { rank, top };
+  }
+  function renderKara() {
+    if (!EV.karaoke) return;
+    const me = store && store.uid, staff = isStaff();
+    const items = Object.entries(K.q).map(([id, x]) => ({ id, ...x }));
+    const sing = items.find(x => x.status === 'singing');
+    const wait = items.filter(x => x.status === 'waiting').sort((a, b) => (a.at || 0) - (b.at || 0));
+    const done = items.filter(x => x.status === 'done').sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0)).slice(0, 15);
+    const v = kAvg(K.votes), myVote = K.votes && K.votes[me];
+    if (!$('#kName').value) $('#kName').value = lsGet('wf3_kname') || '';
+    $('#kNow').innerHTML = sing ? `
+      <div class="lbl"><i></i>Ahora canta</div>
+      <h3>${esc(sing.name)}</h3>
+      <div class="song">${esc(sing.song)}${sing.artist ? ' · ' + esc(sing.artist) : ''}</div>
+      ${sing.note ? `<div class="ded">💌 ${esc(sing.note)}</div>` : ''}
+      <div class="kvote">${[1, 2, 3, 4, 5].map(n => `<button data-ka="vote" data-v="${n}" class="${myVote >= n ? 'on' : ''}" aria-label="${n} estrellas">★</button>`).join('')}</div>
+      <div class="kmeter"><div class="bar"><i style="width:${v.avg / 5 * 100}%"></i></div><b>${v.n ? v.avg.toFixed(1) : '–'}</b><span>${v.n} voto${v.n === 1 ? '' : 's'}</span></div>
+      ${staff ? `<div class="kstaff"><button class="btn" data-ka="next">Siguiente ▶</button><button class="btn ghost" data-ka="finish">Terminar</button></div>` : ''}`
+      : `<div class="kidle"><b>${wait.length ? 'Preparando la siguiente…' : 'Nadie cantando ahora'}</b><span>${wait.length ? `Hay ${wait.length} en la cola` : 'Apúntate abajo y sé el primero'}</span>${staff && wait.length ? `<div class="kstaff" style="justify-content:center"><button class="btn" data-ka="next">Empezar con ${esc(wait[0].name)} ▶</button></div>` : ''}</div>`;
+    $('#kQueue').innerHTML = wait.length ? wait.map((x, i) => `
+      <div class="kq ${x.uid === me ? 'mine' : ''}">
+        <div class="pos">${i + 1}</div>
+        <div class="nm"><b>${esc(x.name)}${x.uid === me ? ' · tú' : ''}</b><span>${esc(x.song)}${x.artist ? ' · ' + esc(x.artist) : ''}${x.note ? ' · 💌 ' + esc(x.note) : ''}</span></div>
+        <div class="acts">${staff ? `<button class="go" data-ka="start" data-id="${x.id}">Cantar</button><button data-ka="first" data-id="${x.id}">↑ Primero</button><button data-ka="skip" data-id="${x.id}">Saltar</button>` : x.uid === me ? `<button data-ka="cancel" data-id="${x.id}">Quitar</button>` : ''}</div>
+      </div>`).join('') : '<div class="empty"><b>Cola vacía</b><span>¡Pide la primera canción!</span></div>';
+    $('#kDone').innerHTML = done.map(x => `<div class="kq"><div class="pos">✓</div><div class="nm"><b>${esc(x.name)}</b><span>${esc(x.song)}</span></div><div class="acts"><span class="kst ok">${x.score && x.score.count ? '★ ' + x.score.avg.toFixed(1) + ' · ' + x.score.count : 'sin votos'}</span></div></div>`).join('') || '<p class="note" style="padding:12px">Todavía nadie.</p>';
+    // ranking
+    const { rank, top } = kRanking(), medal = ['🥇', '🥈', '🥉'];
+    $('#kRankTitle').textContent = 'Ranking de ' + MONTHS[new Date().getMonth()];
+    $('#kRank').innerHTML = rank.length ? rank.slice(0, 10).map((p, i) => `<div class="kr ${i === 0 ? 'top1' : ''}"><div class="med">${medal[i] || i + 1}</div><div><b>${esc(p.name)}</b><span>${p.perf} actuación${p.perf === 1 ? '' : 'es'} · ${p.count} votos</span></div><div class="sc">${p.avg.toFixed(2)}</div></div>`).join('') : '<p class="note">Aún no hay votaciones este mes. ¡Canta y que te voten!</p>';
+    $('#kTopSongs').innerHTML = top.length ? top.map((s, i) => `<div class="rowkv"><span>${i + 1}. ${esc(s.song)}${s.artist ? ' · ' + esc(s.artist) : ''}</span><b>${s.n}×</b></div>`).join('') : '<p class="note">Todavía no se ha pedido ninguna.</p>';
+    // reseñas
+    const revs = Object.entries(K.rev).map(([id, r]) => ({ id, ...r })).sort((a, b) => (b.at || 0) - (a.at || 0));
+    const ra = revs.length ? revs.reduce((s, r) => s + (+r.stars || 0), 0) / revs.length : 0;
+    $('#kRevAvg').textContent = revs.length ? ra.toFixed(1) : '—'; $('#kRevStars').textContent = revs.length ? starsTxt(ra) : '☆☆☆☆☆';
+    $('#kRevCount').textContent = revs.length ? `${revs.length} reseña${revs.length === 1 ? '' : 's'}` : 'Sin reseñas todavía';
+    if (!$('#kRevName').value) $('#kRevName').value = lsGet('wf3_kname') || '';
+    $('#kRevList').innerHTML = revs.map(r => `<div class="krev"><div class="h"><b>${esc(r.name)}${can('admin') ? `<button class="kdel" data-ka="delrev" data-id="${r.id}">Borrar</button>` : ''}</b><span>${starsTxt(r.stars)}</span></div>${r.text ? `<p>${esc(r.text)}</p>` : ''}<small>${fmtWhen(r.at)}</small></div>`).join('');
+    // fotos
+    const ph = Object.entries(K.photos).map(([id, p]) => ({ id, ...p })).sort((a, b) => (b.at || 0) - (a.at || 0));
+    $('#kPhotos').innerHTML = ph.map(p => `<div class="kph"><img src="${p.img}" alt="" loading="lazy">${p.name ? `<span>${esc(p.name)}</span>` : ''}${can('admin') || p.uid === me ? `<button class="kdel" data-ka="delph" data-id="${p.id}">✕</button>` : ''}</div>`).join('') || '<p class="note">Sé el primero en subir una foto.</p>';
+    // reservas
+    const rs = Object.entries(K.res).map(([id, r]) => ({ id, ...r })).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    const ST = { pending: ['Pendiente', ''], ok: ['Confirmada', 'ok'], no: ['Rechazada', 'no'] };
+    $('#kResTitle').textContent = staff ? 'Reservas recibidas' : 'Tus reservas';
+    $('#kResList').innerHTML = rs.map(r => {
+      const st = ST[r.status] || ST.pending, d = r.date ? new Date(r.date + 'T00:00').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }) : '';
+      const wa = staff ? phoneWa(r.phone) : '';
+      const msg = wa ? wa + '?text=' + encodeURIComponent(`Hola ${r.name}, tu reserva en ${EV.name} para ${r.people} el ${d} a las ${r.time} está ${r.status === 'ok' ? 'CONFIRMADA ✅' : r.status === 'no' ? 'rechazada, lo sentimos 🙏' : 'recibida, te confirmamos en breve'}.`) : '';
+      return `<div class="kq"><div class="pos">${r.people}</div><div class="nm"><b>${esc(r.name)} · ${esc(d)} ${esc(r.time)}</b><span>${staff ? esc(r.phone) + ' · ' : ''}${esc(r.note || '')}</span></div><div class="acts"><span class="kst ${st[1]}">${st[0]}</span>${staff ? `<button class="go" data-ka="res" data-s="ok" data-id="${r.id}">Confirmar</button><button data-ka="res" data-s="no" data-id="${r.id}">Rechazar</button>${msg ? `<a class="kst ok" href="${esc(msg)}" target="_blank" rel="noopener">WhatsApp</a>` : ''}` : ''}</div></div>`;
+    }).join('') || `<p class="note" style="padding:12px">${staff ? 'No hay reservas.' : 'Todavía no has pedido ninguna.'}</p>`;
+    if (TV) renderTv(sing, wait, v, rank);
+  }
+
+  // ----- pantalla TV -----
+  const TV = /[?&]tv=1/.test(location.search);
+  function renderTv(sing, wait, v, rank) {
+    $('#tvName').textContent = EV.name; $('#tvLogo').hidden = !EV.logo; if (EV.logo) $('#tvLogo').src = EV.logo;
+    $('.tv-bg').style.backgroundImage = EV.poster && EV.poster !== 'none' ? `url("${EV.poster}")` : getComputedStyle($('.hero-bg')).backgroundImage;
+    $('#tvNow').innerHTML = sing ? `<div class="lbl"><i></i>Ahora canta</div><h3>${esc(sing.name)}</h3><div class="song">${esc(sing.song)}${sing.artist ? ' · ' + esc(sing.artist) : ''}</div>${sing.note ? `<div class="ded">💌 ${esc(sing.note)}</div>` : ''}<div class="tv-meter"><div class="bar"><i style="width:${v.avg / 5 * 100}%"></i></div><b>${v.n ? v.avg.toFixed(1) : '–'}</b><span>${v.n} votos</span></div>`
+      : `<div class="lbl">${esc(EV.tag || 'Karaoke')}</div><h3>¡Pide tu canción!</h3><div class="song">Escanea el QR y apúntate</div>`;
+    $('#tvNext').innerHTML = wait.slice(0, 5).map((x, i) => `<div class="tv-nx"><em>${i + 1}</em><div><b>${esc(x.name)}</b><span>${esc(x.song)}</span></div></div>`).join('') || '<div class="tv-nx"><div><span>La cola está vacía</span></div></div>';
+    $('#tvRank').innerHTML = rank.length ? `<span class="t">Top ${MONTHS[new Date().getMonth()]}</span>` + rank.slice(0, 3).map((p, i) => `<span class="p">${['🥇', '🥈', '🥉'][i]} ${esc(p.name)} <b>${p.avg.toFixed(1)}</b></span>`).join('') : `<span class="t">${esc(EV.venue || '')}</span>`;
+    const qrUrl = location.href.split('?')[0].split('#')[0] + '#k=' + store.key;
+    if (window.QRCode && (!$('#tvQr').children.length || $('#tvQr').dataset.u !== qrUrl)) {
+      try { $('#tvQr').innerHTML = ''; new QRCode($('#tvQr'), { text: qrUrl, width: 220, height: 220, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); $('#tvQr').dataset.u = qrUrl; }
+      catch (e) { console.error(e); }
+    }
+  }
+  if (TV) {
+    document.body.classList.add('tvmode'); $('#tvView').hidden = false;
+    lsSet('wf3_view_' + (getKey() || ''), '1');   // la TV no pide contraseña: solo mira
+    $('#tvFs').onclick = () => { (document.documentElement.requestFullscreen || function () {}).call(document.documentElement); };
+  }
+
   /* ---------------- datos del evento (configurables) ---------------- */
   const evKey = () => 'wf3_ev_' + ((store && store.key) || 'local');
   let lastTitle = null;
@@ -1538,6 +1939,9 @@ const FIREBASE_CONFIG = {
     rememberEvent();
     fillEventForm();
     render(); renderCounter();
+    karaSync();
+    // en un local con karaoke, el cliente sin contraseña entra directo al karaoke
+    if (EV.karaoke && !K.defaulted && perm.ready && !can('door')) { K.defaulted = true; setTab('kara'); }
   }
   function fillEventForm() {
     if (document.activeElement && document.activeElement.closest && document.activeElement.closest('.evgrid')) return;
@@ -1548,7 +1952,7 @@ const FIREBASE_CONFIG = {
     set('#evPct', EV.pct); set('#evSplit', EV.split); set('#evLineup', EV.lineup);
     $('#evP2Venue').checked = !!EV.p2Venue; $('#evPosterDel').hidden = EV.poster === 'none';
     set('#evMap', EV.map); set('#evIg', EV.ig); set('#evInfoIn', EV.info); set('#evPhone', EV.phone);
-    $('#evPhotoColor').checked = !!EV.photoColor; $('#evLogoDel').hidden = !EV.logo;
+    $('#evPhotoColor').checked = !!EV.photoColor; $('#evKaraoke').checked = !!EV.karaoke; $('#evLogoDel').hidden = !EV.logo;
     set('#evBg', EV.theme.bg); set('#evInk', EV.theme.ink); set('#evAccent', EV.theme.accent);
     markTheme();
   }
@@ -1623,7 +2027,7 @@ const FIREBASE_CONFIG = {
       p2Venue: $('#evP2Venue').checked, pct: Math.min(100, Math.max(0, n('#evPct', 50))), split: Math.max(1, Math.round(n('#evSplit', 7))),
       lineup: v('#evLineup'), poster: pendingPoster !== null ? pendingPoster : (EV.poster || ''),
       map: v('#evMap'), ig: v('#evIg'), info: $('#evInfoIn').value.trim(), phone: v('#evPhone'),
-      logo: pendingLogo !== null ? pendingLogo : (EV.logo || ''), photoColor: $('#evPhotoColor').checked,
+      logo: pendingLogo !== null ? pendingLogo : (EV.logo || ''), photoColor: $('#evPhotoColor').checked, karaoke: $('#evKaraoke').checked,
       theme: { bg: $('#evBg').value, ink: $('#evInk').value, accent: $('#evAccent').value }
     };
     pendingPoster = null; $('#evPoster').value = ''; pendingLogo = null; $('#evLogoIn').value = '';
