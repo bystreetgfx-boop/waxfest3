@@ -345,6 +345,14 @@ body.nomoney .kpis{grid-template-columns:repeat(3,1fr)}
 .kph img{width:100%;height:100%;object-fit:cover;display:block}
 .kph span{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:700;background:rgba(0,0,0,.55);color:#fff;padding:3px 8px;border-radius:999px}
 .kph .kdel{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.6);margin:0}
+.kpendbox{margin-top:6px;padding:4px 14px 14px;border:1px dashed rgba(var(--okrgb),.45);border-radius:18px;background:rgba(var(--okrgb),.05)}
+.kph.pend img{filter:saturate(.85)}
+.kpa{position:absolute;left:8px;right:8px;bottom:8px;display:flex;gap:6px}
+.kpa button{flex:1;font-size:12px;font-weight:800;padding:8px 6px;border-radius:10px}
+.kpa .ok{background:var(--ok);color:var(--onok)}
+.kpa .no{flex:0 0 auto;background:rgba(0,0,0,.65);color:#fff;border:1px solid rgba(255,91,72,.6)}
+.kph.pend span{bottom:auto;top:8px}
+.kseg .badge{margin-left:4px}
 .kst{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid var(--line2)}
 .kst.ok{color:var(--ok);border-color:rgba(var(--okrgb),.5)}
 .kst.no{color:var(--bad);border-color:rgba(255,91,72,.5)}
@@ -707,8 +715,10 @@ body.no-door .tick,body.no-door .d .go{display:none}
       </div>
 
       <div class="kpane" id="k-fotos">
-        <div class="panel kform"><div class="k">Fotos de la noche</div><p class="note">Sube tus fotos y aparecen aquí para todos.</p>
+        <div class="panel kform"><div class="k">Fotos de la noche</div><p class="note">Sube tus fotos de la noche. El local las revisa antes de publicarlas.</p>
           <label class="btn" style="cursor:pointer">📸 Subir foto<input type="file" id="kPhotoIn" accept="image/*" hidden></label></div>
+        <div class="kpendbox" id="kPendBox" hidden><div class="k ktitle" id="kPendTitle">Pendientes de aprobar</div><div class="kphotos" id="kPend"></div></div>
+        <div class="k ktitle">Publicadas</div>
         <div class="kphotos" id="kPhotos"></div>
       </div>
 
@@ -1672,7 +1682,16 @@ const FIREBASE_CONFIG = {
 
   /* ---------------- arranque ---------------- */
   /* ---------------- KARAOKE (módulo por evento) ---------------- */
-  const K = { on: false, q: {}, rev: {}, photos: {}, res: {}, votes: {}, singingId: null, refs: [], voteRef: null, resRef: null, sub: 'cola', revStars: 5 };
+  const K = { on: false, q: {}, rev: {}, photos: {}, pend: {}, res: {}, votes: {}, singingId: null, refs: [], voteRef: null, resRef: null, pendRef: null, sub: 'cola', revStars: 5 };
+  // fotos de clientes: van a "pendientes" y solo se publican cuando el staff las aprueba
+  const kMyPend = () => { try { return JSON.parse(lsGet('wf3_mypend_' + store.key) || '{}') || {}; } catch { return {}; } };
+  async function kLoadMyPend() {
+    if (isStaff()) return;
+    const ids = Object.keys(kMyPend()), out = {}, keep = {};
+    await Promise.all(ids.map(id => kdb().child('photosPending/' + id).get().then(s => { if (s.val()) { out[id] = s.val(); keep[id] = 1; } }).catch(() => {})));
+    lsSet('wf3_mypend_' + store.key, JSON.stringify(keep));   // las ya aprobadas o rechazadas dejan de estar pendientes
+    K.pend = out; renderKara();
+  }
   const kdb = () => firebase.database().ref('events/' + store.key + '/karaoke');
   const isStaff = () => perm.local || canEnter() || can('edit');
   const kMyRes = () => { try { return JSON.parse(lsGet('wf3_myres_' + store.key) || '{}') || {}; } catch { return {}; } };
@@ -1680,7 +1699,7 @@ const FIREBASE_CONFIG = {
   const monthKey = t => { const d = new Date(t || Date.now()); return d.getFullYear() + '-' + d.getMonth(); };
   const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   const kAvg = votes => { const v = Object.values(votes || {}).filter(x => typeof x === 'number'); return { avg: v.length ? v.reduce((s, x) => s + x, 0) / v.length : 0, n: v.length }; };
-  const kOff = () => { K.refs.forEach(r => r.off()); K.refs = []; if (K.voteRef) { K.voteRef.off(); K.voteRef = null; } if (K.resRef) { K.resRef.off(); K.resRef = null; } K.on = false; };
+  const kOff = () => { K.refs.forEach(r => r.off()); K.refs = []; if (K.voteRef) { K.voteRef.off(); K.voteRef = null; } if (K.resRef) { K.resRef.off(); K.resRef = null; } if (K.pendRef) { K.pendRef.off(); K.pendRef = null; } K.on = false; };
 
   function karaSync() {
     const show = !!EV.karaoke;
@@ -1697,6 +1716,9 @@ const FIREBASE_CONFIG = {
     if (K.on) {
       if (isStaff() && !K.resRef) { K.resRef = kdb().child('reservations').limitToLast(200); K.resRef.on('value', s => { K.res = s.val() || {}; renderKara(); }, () => { K.resRef = null; }); }
       else if (!isStaff() && K.resRef) { K.resRef.off(); K.resRef = null; K.res = {}; kLoadMyRes(); }
+      if (isStaff() && !K.pendRef) { K.pendRef = kdb().child('photosPending').limitToLast(50); K.pendRef.on('value', s => { K.pend = s.val() || {}; renderKara(); }, () => { K.pendRef = null; }); }
+      else if (!isStaff() && K.pendRef) { K.pendRef.off(); K.pendRef = null; K.pend = {}; }
+      if (!isStaff() && !K.pendLoaded) { K.pendLoaded = true; kLoadMyPend(); }
     }
     $('#kTvBtn').hidden = !isStaff() || perm.local;
     renderKara();
@@ -1749,6 +1771,13 @@ const FIREBASE_CONFIG = {
     if (a === 'cancel') { if (confirm('¿Quitar tu canción de la cola?')) kw(kdb().child('queue/' + id).remove()); }
     if (a === 'delrev') { if (confirm('¿Borrar esta reseña?')) kw(kdb().child('reviews/' + id).remove()); }
     if (a === 'delph') { if (confirm('¿Borrar esta foto?')) kw(kdb().child('photos/' + id).remove()); }
+    if (a === 'approve') {
+      const p = K.pend[id]; if (!p) return;
+      // se publica y se quita de pendientes a la vez; queda registrado quién la aprobó
+      kw(kdb().update({ ['photos/' + id]: { uid: p.uid, name: p.name || '', img: p.img, at: p.at || Date.now(), approvedBy: store.uid, approvedAt: firebase.database.ServerValue.TIMESTAMP }, ['photosPending/' + id]: null }).then(() => toast('Foto publicada')));
+    }
+    if (a === 'reject') { if (confirm('¿Rechazar y borrar esta foto?')) kw(kdb().child('photosPending/' + id).remove().then(() => toast('Foto rechazada'))); }
+    if (a === 'unpend') { kw(kdb().child('photosPending/' + id).remove().then(() => { toast('Foto retirada'); kLoadMyPend(); })); }
     if (a === 'res') kw(kdb().child('reservations/' + id + '/status').set(b.dataset.s));
   });
   $('#kSeg').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; K.sub = b.dataset.k; $$('#kSeg button').forEach(x => x.classList.toggle('on', x === b)); $$('.kpane').forEach(p => p.classList.toggle('on', p.id === 'k-' + K.sub)); };
@@ -1762,10 +1791,17 @@ const FIREBASE_CONFIG = {
   };
   $('#kPhotoIn').onchange = async e => {
     const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    if (!/^image\/(jpeg|png|webp|heic|heif|gif)$/i.test(f.type || 'image/jpeg')) return toast('Ese archivo no es una foto');
+    if (f.size > 25 * 1024 * 1024) return toast('La foto es demasiado grande');
+    if (!isStaff() && Object.keys(K.pend).length >= 5) return toast('Tienes 5 fotos esperando revisión. Espera a que el local las revise.');
     try {
+      // se redibuja la foto: así se eliminan los datos ocultos (ubicación GPS, modelo del móvil…)
       const img = await shrinkImage(f, 700, 0.66);
-      await kdb().child('photos').push({ uid: store.uid, name: lsGet('wf3_kname') || lsGet('wf3_name') || '', img, at: firebase.database.ServerValue.TIMESTAMP });
-      toast('¡Foto subida!');
+      if (!img.startsWith('data:image/jpeg;base64,') || img.length > 290000) return toast('No se ha podido preparar la foto');
+      const ref = kdb().child('photosPending').push();
+      await ref.set({ uid: store.uid, name: (lsGet('wf3_kname') || lsGet('wf3_name') || '').slice(0, 40), img, at: firebase.database.ServerValue.TIMESTAMP });
+      if (isStaff()) { toast('Foto en pendientes: apruébala abajo'); }
+      else { const m = kMyPend(); m[ref.key] = 1; lsSet('wf3_mypend_' + store.key, JSON.stringify(m)); toast('Foto enviada. El local la revisará antes de publicarla.'); kLoadMyPend(); }
     } catch (err) { console.error(err); toast('No se ha podido subir la foto'); }
   };
   $('#kResForm').onsubmit = e => {
@@ -1831,7 +1867,13 @@ const FIREBASE_CONFIG = {
     $('#kRevList').innerHTML = revs.map(r => `<div class="krev"><div class="h"><b>${esc(r.name)}${can('admin') ? `<button class="kdel" data-ka="delrev" data-id="${r.id}">Borrar</button>` : ''}</b><span>${starsTxt(r.stars)}</span></div>${r.text ? `<p>${esc(r.text)}</p>` : ''}<small>${fmtWhen(r.at)}</small></div>`).join('');
     // fotos
     const ph = Object.entries(K.photos).map(([id, p]) => ({ id, ...p })).sort((a, b) => (b.at || 0) - (a.at || 0));
-    $('#kPhotos').innerHTML = ph.map(p => `<div class="kph"><img src="${p.img}" alt="" loading="lazy">${p.name ? `<span>${esc(p.name)}</span>` : ''}${can('admin') || p.uid === me ? `<button class="kdel" data-ka="delph" data-id="${p.id}">✕</button>` : ''}</div>`).join('') || '<p class="note">Sé el primero en subir una foto.</p>';
+    const safeImg = s => /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(s || '') ? s : '';
+    $('#kPhotos').innerHTML = ph.filter(p => safeImg(p.img)).map(p => `<div class="kph"><img src="${safeImg(p.img)}" alt="" loading="lazy">${p.name ? `<span>${esc(p.name)}</span>` : ''}${staff || p.uid === me ? `<button class="kdel" data-ka="delph" data-id="${p.id}">✕</button>` : ''}</div>`).join('') || '<p class="note">Todavía no hay fotos publicadas.</p>';
+    const pend = Object.entries(K.pend).map(([id, p]) => ({ id, ...p })).filter(p => safeImg(p.img)).sort((a, b) => (a.at || 0) - (b.at || 0));
+    $('#kPendBox').hidden = !pend.length;
+    $('#kPendTitle').textContent = staff ? `Pendientes de aprobar (${pend.length})` : `Tus fotos en revisión (${pend.length})`;
+    $('#kPend').innerHTML = pend.map(p => `<div class="kph pend"><img src="${safeImg(p.img)}" alt="" loading="lazy">${p.name ? `<span>${esc(p.name)}</span>` : ''}<div class="kpa">${staff ? `<button class="ok" data-ka="approve" data-id="${p.id}">✓ Aprobar</button><button class="no" data-ka="reject" data-id="${p.id}">✕</button>` : `<button class="no" data-ka="unpend" data-id="${p.id}">Retirar</button>`}</div></div>`).join('');
+    const fb = $('#kSeg [data-k="fotos"]'); fb.innerHTML = 'Fotos' + (staff && pend.length ? ` <span class="badge">${pend.length}</span>` : '');
     // reservas
     const rs = Object.entries(K.res).map(([id, r]) => ({ id, ...r })).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
     const ST = { pending: ['Pendiente', ''], ok: ['Confirmada', 'ok'], no: ['Rechazada', 'no'] };
